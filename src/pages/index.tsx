@@ -1,12 +1,15 @@
-import { Box, Button, Heading, Stack } from "@chakra-ui/react";
-import { WorkoutType } from "@prisma/client";
+import { Box, Button, Heading, List, ListItem, Stack } from "@chakra-ui/react";
+import { User, Workout, WorkoutType } from "@prisma/client";
 import type { NextPage } from "next";
+import { addMonths, endOfMonth, startOfMonth } from "date-fns";
 import { useSession, signOut } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import styled from "styled-components";
 import { LoggedOut } from "../../components/LoggedOut";
+import { OverviewChart } from "../../components/OverviewChart";
 import { prisma } from "../server/db/client";
+import { trpc } from "../utils/trpc";
 
 const ContainerOuter = styled.div`
   --color-gray-500: rgba(107, 114, 128, 100%);
@@ -39,27 +42,86 @@ const ContainerInner = styled.div`
 `;
 
 interface Props {
-  workouts: WorkoutType[];
+  workoutTypes: WorkoutType[];
+  totalScores: {
+    name: string | null;
+    totalScore: number;
+  }[];
+  thisMonthMap: { [id: string]: number };
 }
 
 export async function getServerSideProps(): Promise<{ props: Props }> {
-  const workouts = await prisma.workoutType.findMany();
+  const workoutTypes = await prisma.workoutType.findMany();
+
+  const users = await prisma.user.findMany({
+    include: {
+      workouts: true,
+    },
+  });
+
+  const thisMonthsWorkouts = await prisma.workout.findMany({
+    where: {
+      date: {
+        gte: startOfMonth(new Date()),
+        lte: endOfMonth(new Date()),
+      },
+    },
+    include: {
+      User: true,
+    },
+  });
+
+  const thisMonthMap = thisMonthsWorkouts.reduce(
+    (s: { [id: string]: number }, n) => {
+      if (!n.User?.name) {
+        throw new Error("Found not find user");
+      }
+
+      const existing = s[n.User.name] ?? 0;
+      s[n.User.name] = existing + n.points;
+
+      return s;
+    },
+    {}
+  );
+
+  const totalScores = users.map((user) => {
+    const totalScore = user.workouts.reduce((sum, next) => {
+      return sum + next.points;
+    }, 0);
+
+    return {
+      totalScore,
+      name: user.name,
+      thisMonthMap,
+    };
+  });
 
   return {
     props: {
-      workouts,
-    }, // will be passed to the page component as props
+      workoutTypes,
+      totalScores,
+      thisMonthMap,
+    },
   };
 }
 
-const Home: NextPage<Props> = (props) => {
+const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
   // const { data } = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
+
+  console.log(thisMonthMap);
 
   const session = useSession();
 
   if (!session.data?.user) {
     return <LoggedOut />;
   }
+
+  const data2 = [
+    { month: 1, points: 100 },
+    { month: 2, points: 250 },
+    { month: 3, points: 280 },
+  ] as const;
 
   return (
     <>
@@ -78,18 +140,34 @@ const Home: NextPage<Props> = (props) => {
           <Box p="5" borderRadius="10px" border="1px solid black" m="5">
             <Stack
               direction={{ base: "column", md: "row" }}
-              spacing={4}
               align="center"
+              maxWidth="800px"
+              flexWrap="wrap"
+              gap="2"
             >
-              {props.workouts.map((workout) => {
+              {workoutTypes.map((workout) => {
                 return (
-                  <Link key={workout.id} href={`/create/${workout.id}`}>
-                    <Button colorScheme="teal">{workout.name}</Button>
-                  </Link>
+                  <>
+                    <Link key={workout.id} href={`/create/${workout.id}`}>
+                      <Button colorScheme="teal">{workout.name}</Button>
+                    </Link>
+                  </>
                 );
               })}
             </Stack>
           </Box>
+
+          <OverviewChart data={data2} />
+
+          <List>
+            {totalScores.map((el) => {
+              return (
+                <ListItem key={el.name ?? "-"}>
+                  {el.name} - {el.totalScore}
+                </ListItem>
+              );
+            })}
+          </List>
 
           <button onClick={() => signOut()}>Logg ut</button>
         </ContainerInner>

@@ -1,46 +1,62 @@
 import {
-  Box,
   Button,
-  Input,
-  InputGroup,
   FormControl,
   FormLabel,
   Heading,
-  Stack,
-  FormHelperText,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from "@chakra-ui/react";
 import { WorkoutType } from "@prisma/client";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { trpc } from "../src/utils/trpc";
+import { Loader } from "./lib/Loader";
 import { Spacer } from "./lib/Spacer";
 
 interface Values {
-  length: number;
+  length: string;
   type: WorkoutType;
-  iterations: number;
+  iterations: string;
 }
 
 interface Props {
   workout: WorkoutType;
 }
 
+type States = "IDLE" | "LOADING" | "SUCCESS";
+
 export const Register = ({ workout }: Props) => {
-  const { register, control, handleSubmit } = useForm<Values>({
+  const [state, setState] = useState<States>("IDLE");
+
+  const { mutate } = trpc.useMutation(["workout.workout"]);
+
+  const { control, handleSubmit } = useForm<Values>({
     defaultValues: {
-      iterations: 0,
-      length: 0,
+      iterations: "0",
+      length: "0",
     },
   });
 
   const formSubmit = (values: Values) => {
-    console.log(values);
+    setState("LOADING");
+    mutate({
+      workoutId: workout.id,
+      iterations: parseInt(values.iterations),
+      length: parseInt(values.length),
+    });
+    setState("SUCCESS");
   };
 
-  console.log(workout);
+  if (state === "LOADING") {
+    return <Loader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(formSubmit)}>
@@ -86,6 +102,16 @@ export const Register = ({ workout }: Props) => {
         ) : null}
         <Spacer />
         <Button type="submit">Lagre</Button>
+        {state === "SUCCESS" ? (
+          <>
+            <Spacer />
+            <Alert status="success">
+              <AlertIcon />
+              <AlertTitle>Workout lagret</AlertTitle>
+              <AlertDescription>Godt jobbet!!!</AlertDescription>
+            </Alert>
+          </>
+        ) : null}
       </FormControl>
     </form>
   );

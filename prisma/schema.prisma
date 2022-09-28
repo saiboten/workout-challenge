@@ -30,10 +30,11 @@ model Workout {
     id            String       @id @default(cuid())
     length        Int
     date          DateTime
-    workoutId     String?
     WorkoutType   WorkoutType? @relation(fields: [workoutTypeId], references: [id])
     workoutTypeId Int?
     points        Int
+    User          User?        @relation(fields: [userId], references: [id])
+    userId        String?
 }
 
 // Necessary for Next auth
@@ -71,6 +72,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    workouts      Workout[]
 }
 
 model VerificationToken {
