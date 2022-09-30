@@ -50,7 +50,7 @@ const Home: NextPage<Props> = ({ workout }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Wrapper>
-        <Register workout={workout} />
+        <Register workoutType={workout} />
         <NextLink href="/" passHref>
           <Link>Tilbake</Link>
         </NextLink>

@@ -2,7 +2,7 @@ import { createRouter } from "./context";
 import { z } from "zod";
 import { WorkoutType } from "@prisma/client";
 
-function calculateScore(
+export function calculateScore(
   workout: z.infer<typeof input>,
   workoutType: WorkoutType
 ): number {

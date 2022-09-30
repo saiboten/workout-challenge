@@ -12,11 +12,13 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Box,
 } from "@chakra-ui/react";
 import { WorkoutType } from "@prisma/client";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "../src/utils/trpc";
+import { calculateScore } from "../utils/score";
 import { Loader } from "./lib/Loader";
 import { Spacer } from "./lib/Spacer";
 
@@ -27,17 +29,17 @@ interface Values {
 }
 
 interface Props {
-  workout: WorkoutType;
+  workoutType: WorkoutType;
 }
 
 type States = "IDLE" | "LOADING" | "SUCCESS";
 
-export const Register = ({ workout }: Props) => {
+export const Register = ({ workoutType }: Props) => {
   const [state, setState] = useState<States>("IDLE");
 
   const { mutate } = trpc.useMutation(["workout.workout"]);
 
-  const { control, handleSubmit } = useForm<Values>({
+  const { control, handleSubmit, watch } = useForm<Values>({
     defaultValues: {
       iterations: "0",
       length: "0",
@@ -47,7 +49,7 @@ export const Register = ({ workout }: Props) => {
   const formSubmit = (values: Values) => {
     setState("LOADING");
     mutate({
-      workoutId: workout.id,
+      workoutId: workoutType.id,
       iterations: parseInt(values.iterations),
       length: parseInt(values.length),
     });
@@ -58,13 +60,28 @@ export const Register = ({ workout }: Props) => {
     return <Loader />;
   }
 
+  const { iterations, length } = watch();
+
+  const score = calculateScore(
+    {
+      workoutId: workoutType.id,
+      iterations: parseInt(iterations) ?? 0,
+      length: parseInt(length) ?? 0,
+    },
+    workoutType
+  );
+
   return (
     <form onSubmit={handleSubmit(formSubmit)}>
       <Heading mb="5" size="lg">
-        {workout.name}
+        {workoutType.name}
       </Heading>
+      <Spacer />
+      <Box>Denne treningen gir en verdi på {score} poeng</Box>
+      <Spacer />
+
       <FormControl mb="5">
-        {workout.hasLength ? (
+        {workoutType.hasLength ? (
           <>
             <FormLabel>Lengde</FormLabel>
             <Controller
@@ -82,7 +99,7 @@ export const Register = ({ workout }: Props) => {
             ></Controller>
           </>
         ) : null}
-        {workout.hasIterations ? (
+        {workoutType.hasIterations ? (
           <>
             <FormLabel>Antall reps</FormLabel>
             <Controller

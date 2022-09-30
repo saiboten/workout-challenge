@@ -1,4 +1,12 @@
-import { Box, Button, Heading, List, ListItem, Stack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Heading,
+  List,
+  UnorderedList,
+  ListItem,
+  Stack,
+} from "@chakra-ui/react";
 import { User, Workout, WorkoutType } from "@prisma/client";
 import type { NextPage } from "next";
 import { addMonths, endOfMonth, startOfMonth } from "date-fns";
@@ -10,6 +18,7 @@ import { LoggedOut } from "../../components/LoggedOut";
 import { OverviewChart } from "../../components/OverviewChart";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
+import { Spacer } from "../../components/lib/Spacer";
 
 const ContainerOuter = styled.div`
   --color-gray-500: rgba(107, 114, 128, 100%);
@@ -109,8 +118,6 @@ export async function getServerSideProps(): Promise<{ props: Props }> {
 const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
   // const { data } = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
 
-  console.log(thisMonthMap);
-
   const session = useSession();
 
   if (!session.data?.user) {
@@ -136,8 +143,27 @@ const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
             Workout Challenge
           </Heading>
 
-          <Heading size="md">Velg treningstype</Heading>
-          <Box p="5" borderRadius="10px" border="1px solid black" m="5">
+          <Box textAlign="left">
+            <UnorderedList>
+              {totalScores.map((el) => {
+                return (
+                  <ListItem key={el.name ?? "-"}>
+                    {el.name} - {el.totalScore}
+                  </ListItem>
+                );
+              })}
+            </UnorderedList>
+          </Box>
+
+          <Box
+            p="5"
+            borderRadius="10px"
+            border="1px solid black"
+            m="5"
+            minWidth="100%"
+          >
+            <Heading size="md">Legg til trening</Heading>
+            <Spacer />
             <Stack
               direction={{ base: "column", md: "row" }}
               align="center"
@@ -158,16 +184,6 @@ const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
           </Box>
 
           <OverviewChart data={data2} />
-
-          <List>
-            {totalScores.map((el) => {
-              return (
-                <ListItem key={el.name ?? "-"}>
-                  {el.name} - {el.totalScore}
-                </ListItem>
-              );
-            })}
-          </List>
 
           <button onClick={() => signOut()}>Logg ut</button>
         </ContainerInner>
