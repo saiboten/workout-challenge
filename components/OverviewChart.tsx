@@ -24,7 +24,7 @@ export const OverviewChart = ({
 }) => {
   return (
     <>
-      <Heading>Min måneds workout</Heading>
+      <Heading>Månedens treningspoeng</Heading>
       <VictoryChart
         domainPadding={20}
         colorScale={["tomato", "orange", "gold"]}
@@ -34,7 +34,7 @@ export const OverviewChart = ({
           style={{
             axisLabel: { fontSize: 20, padding: 30 },
             ticks: { stroke: "grey", size: 5 },
-            tickLabels: { fontSize: 5, padding: 0 },
+            tickLabels: { fontSize: 10, padding: 0 },
           }}
         />
         <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />

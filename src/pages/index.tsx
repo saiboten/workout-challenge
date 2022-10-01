@@ -189,14 +189,14 @@ const Home: NextPage<Props> = ({
   return (
     <>
       <Head>
-        <title>Workout Challenge</title>
+        <title>Treningsutfordring</title>
         <meta name="description" content="Workout Challenge" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <ContainerOuter>
         <ContainerInner>
           <Heading mb="5" size="lg">
-            Workout Challenge
+            Treningsutfordring
           </Heading>
 
           <Box textAlign="left">
@@ -241,7 +241,15 @@ const Home: NextPage<Props> = ({
 
           <OverviewChart data={monthChartData} daysInMonth={daysInMonth} />
 
-          <button onClick={() => signOut()}>Logg ut</button>
+          <Spacer />
+
+          <Button onClick={() => signOut()}>Logg ut</Button>
+
+          <Spacer />
+
+          <Link href="workouts">
+            <Button colorScheme="teal">Se treninger</Button>
+          </Link>
         </ContainerInner>
       </ContainerOuter>
     </>
