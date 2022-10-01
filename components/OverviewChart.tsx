@@ -24,7 +24,7 @@ export const OverviewChart = ({
 }) => {
   return (
     <>
-      <Heading>Månedens treningspoeng</Heading>
+      <Heading size="lg">Månedens treningspoeng</Heading>
       <VictoryChart
         domainPadding={20}
         colorScale={["tomato", "orange", "gold"]}

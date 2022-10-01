@@ -28,6 +28,7 @@ import { Spacer } from "../../components/lib/Spacer";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
+import { Loader } from "../../components/lib/Loader";
 
 const ContainerOuter = styled.div`
   --color-gray-500: rgba(107, 114, 128, 100%);
@@ -182,7 +183,11 @@ const Home: NextPage<Props> = ({
 
   const session = useSession();
 
-  if (!session.data?.user) {
+  if (session.status == "loading") {
+    return <Loader />;
+  }
+
+  if (session.status == "unauthenticated") {
     return <LoggedOut />;
   }
 
@@ -210,6 +215,8 @@ const Home: NextPage<Props> = ({
               })}
             </UnorderedList>
           </Box>
+          <Spacer />
+          <OverviewChart data={monthChartData} daysInMonth={daysInMonth} />
 
           <Box
             p="5"
@@ -239,17 +246,13 @@ const Home: NextPage<Props> = ({
             </Stack>
           </Box>
 
-          <OverviewChart data={monthChartData} daysInMonth={daysInMonth} />
+          <Link href="workouts">
+            <Button colorScheme="teal">Se treninger</Button>
+          </Link>
 
           <Spacer />
 
           <Button onClick={() => signOut()}>Logg ut</Button>
-
-          <Spacer />
-
-          <Link href="workouts">
-            <Button colorScheme="teal">Se treninger</Button>
-          </Link>
         </ContainerInner>
       </ContainerOuter>
     </>

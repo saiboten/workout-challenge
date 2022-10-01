@@ -4,6 +4,7 @@ import type { GetServerSidePropsContext, NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import NextLink from "next/link";
+import { Loader } from "../../../components/lib/Loader";
 import { Wrapper } from "../../../components/lib/Wrapper";
 import { LoggedOut } from "../../../components/LoggedOut";
 import { Register } from "../../../components/Register";
@@ -38,7 +39,11 @@ export async function getServerSideProps(
 const Home: NextPage<Props> = ({ workout }) => {
   const session = useSession();
 
-  if (!session.data?.user) {
+  if (session.status == "loading") {
+    return <Loader />;
+  }
+
+  if (session.status == "unauthenticated") {
     return <LoggedOut />;
   }
 

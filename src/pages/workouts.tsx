@@ -17,6 +17,7 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import { Wrapper } from "../../components/lib/Wrapper";
 import Link from "next/link";
 import { Spacer } from "../../components/lib/Spacer";
+import { Loader } from "../../components/lib/Loader";
 
 interface Props {
   workouts: (Workout & {
@@ -61,7 +62,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const WorkOuts: NextPage<Props> = ({ workouts }) => {
   const session = useSession();
 
-  if (!session.data?.user) {
+  if (session.status == "loading") {
+    return <Loader />;
+  }
+
+  if (session.status == "unauthenticated") {
     return <LoggedOut />;
   }
 
