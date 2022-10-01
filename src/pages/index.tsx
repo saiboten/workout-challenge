@@ -8,9 +8,15 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { User, Workout, WorkoutType } from "@prisma/client";
-import type { NextPage } from "next";
-import { addMonths, endOfMonth, startOfMonth } from "date-fns";
-import { useSession, signOut } from "next-auth/react";
+import type { GetServerSideProps, NextPage } from "next";
+import {
+  addDays,
+  addMonths,
+  endOfMonth,
+  isSameDay,
+  startOfMonth,
+} from "date-fns";
+import { useSession, signOut, getSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import styled from "styled-components";
@@ -19,6 +25,9 @@ import { OverviewChart } from "../../components/OverviewChart";
 import { prisma } from "../server/db/client";
 import { trpc } from "../utils/trpc";
 import { Spacer } from "../../components/lib/Spacer";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]";
 
 const ContainerOuter = styled.div`
   --color-gray-500: rgba(107, 114, 128, 100%);
@@ -57,10 +66,38 @@ interface Props {
     totalScore: number;
   }[];
   thisMonthMap: { [id: string]: number };
+  daysInMonth: number[];
+  monthChartData: {
+    x: number;
+    y: number;
+  }[];
 }
 
-export async function getServerSideProps(): Promise<{ props: Props }> {
+const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
+  const returnList = [];
+  let currentDate = monthStart;
+
+  while (currentDate < monthEnd) {
+    returnList.push(currentDate.getDate());
+    currentDate = addDays(currentDate, 1);
+  }
+
+  return returnList;
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
   const workoutTypes = await prisma.workoutType.findMany();
+
+  const monthStart = startOfMonth(new Date());
+  const monthEnd = endOfMonth(new Date());
+
+  const daysInMonth = getDaysInMonth(monthStart, monthEnd);
 
   const users = await prisma.user.findMany({
     include: {
@@ -71,13 +108,30 @@ export async function getServerSideProps(): Promise<{ props: Props }> {
   const thisMonthsWorkouts = await prisma.workout.findMany({
     where: {
       date: {
-        gte: startOfMonth(new Date()),
-        lte: endOfMonth(new Date()),
+        gte: monthStart,
+        lte: monthEnd,
       },
+      userId: session?.user?.id,
     },
     include: {
       User: true,
     },
+  });
+
+  const result = daysInMonth.map((el) => {
+    let score = 0;
+    const day = new Date();
+    day.setDate(el);
+
+    thisMonthsWorkouts.filter((workout) => {
+      if (isSameDay(workout.date, day)) {
+        score += workout.points;
+      }
+    });
+    return {
+      x: el,
+      y: score,
+    };
   });
 
   const thisMonthMap = thisMonthsWorkouts.reduce(
@@ -111,11 +165,19 @@ export async function getServerSideProps(): Promise<{ props: Props }> {
       workoutTypes,
       totalScores,
       thisMonthMap,
+      daysInMonth,
+      monthChartData: result,
     },
   };
-}
+};
 
-const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
+const Home: NextPage<Props> = ({
+  workoutTypes,
+  totalScores,
+  thisMonthMap,
+  daysInMonth,
+  monthChartData,
+}) => {
   // const { data } = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
 
   const session = useSession();
@@ -123,12 +185,6 @@ const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
   if (!session.data?.user) {
     return <LoggedOut />;
   }
-
-  const data2 = [
-    { month: 1, points: 100 },
-    { month: 2, points: 250 },
-    { month: 3, points: 280 },
-  ] as const;
 
   return (
     <>
@@ -183,7 +239,7 @@ const Home: NextPage<Props> = ({ workoutTypes, totalScores, thisMonthMap }) => {
             </Stack>
           </Box>
 
-          <OverviewChart data={data2} />
+          <OverviewChart data={monthChartData} daysInMonth={daysInMonth} />
 
           <button onClick={() => signOut()}>Logg ut</button>
         </ContainerInner>

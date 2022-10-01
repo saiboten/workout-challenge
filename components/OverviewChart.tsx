@@ -1,65 +1,52 @@
+import { Heading } from "@chakra-ui/react";
 import {
+  VictoryStack,
   VictoryLine,
   VictoryChart,
   VictoryAxis,
   VictoryTheme,
   VictoryLegend,
+  VictoryBar,
+  VictoryTooltip,
 } from "victory";
 
 interface MonthData {
-  month: 1 | 2 | 3;
-  points: number;
+  x: number;
+  y: number;
 }
 
-const data2 = [
-  { month: 1, points: 200 },
-  { month: 2, points: 170 },
-  { month: 3, points: 250 },
-] as const;
-
-export const OverviewChart = ({ data }: { data: readonly MonthData[] }) => {
+export const OverviewChart = ({
+  data,
+  daysInMonth,
+}: {
+  data: MonthData[];
+  daysInMonth: number[];
+}) => {
   return (
-    <VictoryChart domainPadding={20} theme={VictoryTheme.material}>
-      <VictoryLegend
-        x={50}
-        y={50}
-        title="Legend"
-        centerTitle
-        orientation="horizontal"
-        gutter={5}
-        style={{ border: { stroke: "black" }, title: { fontSize: 10 } }}
-        data={[
-          { name: "Tobias", symbol: { fill: "tomato", type: "star" } },
-          { name: "Synne", symbol: { fill: "orange" } },
-        ]}
-      />
-      <VictoryAxis
-        // tickValues specifies both the number of ticks and where
-        // they are placed on the axis
-        tickValues={[1, 2, 3]}
-        tickFormat={["Juli", "August", "September"]}
-      />
-      <VictoryAxis
-        dependentAxis
-        // tickFormat specifies how ticks should be displayed
-        tickFormat={(x) => `${x}`}
-      />
-      <VictoryLine
-        interpolation="natural"
-        data={data}
-        // data accessor for x values
-        x="month"
-        // data accessor for y values
-        y="points"
-      />
-      <VictoryLine
-        interpolation="natural"
-        data={data2}
-        // data accessor for x values
-        x="month"
-        // data accessor for y values
-        y="points"
-      />
-    </VictoryChart>
+    <>
+      <Heading>Min måneds workout</Heading>
+      <VictoryChart
+        domainPadding={20}
+        colorScale={["tomato", "orange", "gold"]}
+      >
+        <VictoryAxis
+          tickValues={daysInMonth}
+          style={{
+            axisLabel: { fontSize: 20, padding: 30 },
+            ticks: { stroke: "grey", size: 5 },
+            tickLabels: { fontSize: 5, padding: 0 },
+          }}
+        />
+        <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />
+        <VictoryBar
+          data={data}
+          style={{ data: { fill: "#c43a31" } }}
+          labels={({ datum }) => `y: ${datum.y}`}
+          labelComponent={
+            <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />
+          }
+        />
+      </VictoryChart>
+    </>
   );
 };
