@@ -31,6 +31,7 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Loader } from "../../components/lib/Loader";
 import { number } from "zod";
+import { WorkoutView } from "../../components/WorkoutView";
 
 const ContainerOuter = styled.div`
   --color-gray-500: rgba(107, 114, 128, 100%);
@@ -78,6 +79,10 @@ interface Props {
     x: number;
     y: number;
   }[];
+  lastFive: (Workout & {
+    WorkoutType: WorkoutType | null;
+    User: User | null;
+  })[];
 }
 
 const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
@@ -130,8 +135,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     },
     include: {
       User: true,
+      WorkoutType: true,
     },
   });
+
+  const lastFive = allWorkouts.slice(0, 5);
 
   const result = daysInMonth.map((el) => {
     let score = 0;
@@ -169,6 +177,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       daysInMonth,
       monthChartData: result,
       hasWorkedOutToday: !!todaysWorkout,
+      lastFive,
     },
   };
 };
@@ -179,6 +188,7 @@ const Home: NextPage<Props> = ({
   daysInMonth,
   monthChartData,
   hasWorkedOutToday,
+  lastFive,
 }) => {
   // const { data } = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
 
@@ -224,6 +234,14 @@ const Home: NextPage<Props> = ({
                 );
               })}
             </UnorderedList>
+          </Box>
+          <Box>
+            <Heading size="md">Siste treninger</Heading>
+            {lastFive.map((workout) => {
+              return (
+                <WorkoutView key={workout.id} workout={workout}></WorkoutView>
+              );
+            })}
           </Box>
 
           <Spacer />

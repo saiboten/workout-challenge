@@ -19,6 +19,7 @@ import { Wrapper } from "../../components/lib/Wrapper";
 import Link from "next/link";
 import { Spacer } from "../../components/lib/Spacer";
 import { Loader } from "../../components/lib/Loader";
+import { WorkoutView } from "../../components/WorkoutView";
 
 interface Props {
   workouts: (Workout & {
@@ -85,24 +86,7 @@ const WorkOuts: NextPage<Props> = ({ workouts }) => {
         <Flex textAlign="left" flexDirection="column" gap="2">
           {workouts.map((workout) => {
             return (
-              <Box key={workout.id} border="1px solid black" padding="5">
-                <Heading size="sm">
-                  {format(workout.date, "d. MMMM hh:mm")}:{" "}
-                  {workout.WorkoutType?.name}
-                </Heading>
-
-                {workout.WorkoutType?.hasLength ? (
-                  <Box>Varighet: {workout.length} minutter</Box>
-                ) : null}
-
-                {workout.WorkoutType?.hasIterations ? (
-                  <Box>Antall repitisjoner: {workout.iterations}</Box>
-                ) : null}
-                <Spacer />
-                <Box>
-                  <strong>{workout.points}</strong> poeng
-                </Box>
-              </Box>
+              <WorkoutView key={workout.id} workout={workout}></WorkoutView>
             );
           })}
         </Flex>
