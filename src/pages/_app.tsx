@@ -4,11 +4,11 @@ import { loggerLink } from "@trpc/client/links/loggerLink";
 import { withTRPC } from "@trpc/next";
 import { ThemeProvider, DefaultTheme } from "styled-components";
 import { ChakraProvider } from "@chakra-ui/react";
-
+import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import type { AppRouter } from "../server/router";
+import type { AppProps } from "next/app";
 import "../styles/globals.css";
 
 const theme: DefaultTheme = {
@@ -18,20 +18,17 @@ const theme: DefaultTheme = {
   },
 };
 
-const MyApp: AppType = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}) => {
+function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
     <ChakraProvider>
       <ThemeProvider theme={theme}>
-        <SessionProvider session={session}>
+        <SessionProvider session={pageProps.session}>
           <Component {...pageProps} />
         </SessionProvider>
       </ThemeProvider>
     </ChakraProvider>
   );
-};
+}
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
