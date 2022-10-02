@@ -8,13 +8,10 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
   Box,
 } from "@chakra-ui/react";
 import { WorkoutType } from "@prisma/client";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "../src/utils/trpc";
@@ -36,6 +33,7 @@ type States = "IDLE" | "LOADING" | "SUCCESS";
 
 export const Register = ({ workoutType }: Props) => {
   const [state, setState] = useState<States>("IDLE");
+  const router = useRouter();
 
   const { mutate } = trpc.useMutation(["workout.workout"]);
 
@@ -53,7 +51,7 @@ export const Register = ({ workoutType }: Props) => {
       iterations: parseInt(values.iterations),
       length: parseInt(values.length),
     });
-    setState("SUCCESS");
+    router.push("/?action=addworkoutsuccess");
   };
 
   if (state === "LOADING") {
@@ -119,16 +117,6 @@ export const Register = ({ workoutType }: Props) => {
         ) : null}
         <Spacer />
         <Button type="submit">Lagre</Button>
-        {state === "SUCCESS" ? (
-          <>
-            <Spacer />
-            <Alert status="success">
-              <AlertIcon />
-              <AlertTitle>Workout lagret</AlertTitle>
-              <AlertDescription>Godt jobbet!!!</AlertDescription>
-            </Alert>
-          </>
-        ) : null}
       </FormControl>
     </form>
   );

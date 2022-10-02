@@ -1,14 +1,5 @@
 import { Heading } from "@chakra-ui/react";
-import {
-  VictoryStack,
-  VictoryLine,
-  VictoryChart,
-  VictoryAxis,
-  VictoryTheme,
-  VictoryLegend,
-  VictoryBar,
-  VictoryTooltip,
-} from "victory";
+import { VictoryChart, VictoryAxis, VictoryBar, VictoryTooltip } from "victory";
 
 interface MonthData {
   x: number;

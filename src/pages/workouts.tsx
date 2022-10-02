@@ -1,14 +1,7 @@
-import {
-  Box,
-  Heading,
-  UnorderedList,
-  ListItem,
-  Button,
-  Flex,
-} from "@chakra-ui/react";
+import { Heading, Button, Flex } from "@chakra-ui/react";
 import { Workout, WorkoutType } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
-import { endOfMonth, format, parse, parseISO, startOfMonth } from "date-fns";
+import { endOfMonth, startOfMonth } from "date-fns";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { LoggedOut } from "../../components/LoggedOut";
@@ -51,7 +44,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     })
   ).sort((el1, el2) => (el1.date < el2.date ? 1 : -1));
-  // .map((el) => ({ ...el, date: el.date.toISOString() }));
 
   return {
     props: {
