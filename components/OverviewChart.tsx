@@ -1,5 +1,11 @@
 import { Heading } from "@chakra-ui/react";
-import { VictoryChart, VictoryAxis, VictoryBar, VictoryTooltip } from "victory";
+import {
+  VictoryChart,
+  VictoryAxis,
+  VictoryBar,
+  VictoryTooltip,
+  VictoryStack,
+} from "victory";
 
 interface MonthData {
   x: number;
@@ -10,7 +16,7 @@ export const OverviewChart = ({
   data,
   daysInMonth,
 }: {
-  data: MonthData[];
+  data: MonthData[][];
   daysInMonth: number[];
 }) => {
   return (
@@ -29,14 +35,21 @@ export const OverviewChart = ({
           }}
         />
         <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />
-        <VictoryBar
-          data={data}
-          style={{ data: { fill: "#c43a31" } }}
-          labels={({ datum }) => `y: ${datum.y}`}
-          labelComponent={
-            <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />
-          }
-        />
+        {data.map((oneUserData, index) => {
+          console.log(oneUserData);
+          return (
+            <VictoryBar
+              alignment={index % 2 == 0 ? "end" : "start"}
+              key={index}
+              data={oneUserData}
+              style={{ data: { fill: index % 2 == 0 ? "#c43a31" : "blue" } }}
+              labels={({ datum }) => `y: ${datum.y}`}
+              labelComponent={
+                <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />
+              }
+            />
+          );
+        })}
       </VictoryChart>
     </>
   );

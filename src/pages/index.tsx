@@ -2,8 +2,6 @@ import {
   Box,
   Button,
   Heading,
-  UnorderedList,
-  ListItem,
   Alert,
   AlertIcon,
   AlertTitle,
@@ -47,10 +45,10 @@ interface Props {
   }[];
   daysInMonth: number[];
   hasWorkedOutToday: boolean;
-  monthChartData: {
+  workoutChartData: {
     x: number;
     y: number;
-  }[];
+  }[][];
   lastFive: (Workout & {
     WorkoutType: WorkoutType | null;
     User: User | null;
@@ -113,20 +111,39 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const lastFive = allWorkouts.reverse().slice(0, 3);
 
-  const result = daysInMonth.map((dayNumber) => {
-    let score = 0;
-    const day = new Date();
-    day.setDate(dayNumber);
-
-    allWorkouts.filter((workout) => {
-      if (isSameDay(workout.date, day)) {
-        score += workout.points;
+  const workoutDict = allWorkouts.reduce(
+    (sum: { [id: string]: Workout[] }, workout) => {
+      if (!workout.userId) {
+        throw Error("Could not find user");
       }
+      if (sum[workout.userId] === undefined) {
+        sum[workout.userId] = [];
+      }
+      sum[workout.userId]?.push(workout);
+      return sum;
+    },
+    {}
+  );
+
+  const users = Object.keys(workoutDict);
+
+  const workoutChartData = users.map((user) => {
+    const result = daysInMonth.map((dayNumber) => {
+      let score = 0;
+      const day = new Date();
+      day.setDate(dayNumber);
+
+      workoutDict[user]?.filter((workout) => {
+        if (isSameDay(workout.date, day)) {
+          score += workout.points;
+        }
+      });
+      return {
+        x: dayNumber,
+        y: score,
+      };
     });
-    return {
-      x: dayNumber,
-      y: score,
-    };
+    return result;
   });
 
   const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
@@ -149,7 +166,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       workoutTypes,
       totalScores,
       daysInMonth,
-      monthChartData: result,
+      workoutChartData,
       hasWorkedOutToday: !!todaysWorkout,
       lastFive,
     },
@@ -160,7 +177,7 @@ const Home: NextPage<Props> = ({
   workoutTypes,
   totalScores,
   daysInMonth,
-  monthChartData,
+  workoutChartData,
   hasWorkedOutToday,
   lastFive,
 }) => {
@@ -223,7 +240,7 @@ const Home: NextPage<Props> = ({
         </Box>
 
         <Spacer />
-        <OverviewChart data={monthChartData} daysInMonth={daysInMonth} />
+        <OverviewChart data={workoutChartData} daysInMonth={daysInMonth} />
 
         <Box
           p="5"

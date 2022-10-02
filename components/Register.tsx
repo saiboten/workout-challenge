@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { WorkoutType } from "@prisma/client";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "../src/utils/trpc";
 import { calculateScore } from "../utils/score";
