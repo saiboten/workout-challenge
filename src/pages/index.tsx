@@ -108,7 +108,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const daysInMonth = getDaysInMonth(monthStart, monthEnd);
 
-  const thisMonthsWorkouts = await prisma.workout.findMany({
+  const currentUserWorkouts = await prisma.workout.findMany({
     where: {
       date: {
         gte: monthStart,
@@ -121,12 +121,24 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     },
   });
 
+  const allWorkouts = await prisma.workout.findMany({
+    where: {
+      date: {
+        gte: monthStart,
+        lte: monthEnd,
+      },
+    },
+    include: {
+      User: true,
+    },
+  });
+
   const result = daysInMonth.map((el) => {
     let score = 0;
     const day = new Date();
     day.setDate(el);
 
-    thisMonthsWorkouts.filter((workout) => {
+    currentUserWorkouts.filter((workout) => {
       if (isSameDay(workout.date, day)) {
         score += workout.points;
       }
@@ -137,16 +149,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     };
   });
 
-  const totalScoresMap = thisMonthsWorkouts.reduce(
-    (sum: UserWorkoutMap, workout) => {
-      sum[workout.User?.name ?? ""] =
-        (sum[workout.User?.name ?? ""] ?? 0) + workout.points;
-      return sum;
-    },
-    {}
-  );
+  const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
+    sum[workout.User?.name ?? ""] =
+      (sum[workout.User?.name ?? ""] ?? 0) + workout.points;
+    return sum;
+  }, {});
 
-  const todaysWorkout = thisMonthsWorkouts.find((el) => isToday(el.date));
+  const todaysWorkout = currentUserWorkouts.find((el) => isToday(el.date));
 
   const totalScores = Object.keys(totalScoresMap).map((key) => ({
     name: key,
@@ -198,11 +207,13 @@ const Home: NextPage<Props> = ({
 
           {!hasWorkedOutToday ? (
             <Box bgColor="khaki" padding="5" color="black" mb="5">
-              Du har ikke samling noen poeng i dag. På tide å komme seg opp på
+              Du har ikke samlet noen poeng i dag. På tide å komme seg opp på
               hesten!
             </Box>
           ) : null}
 
+          <Heading size="md">Stillingen</Heading>
+          <Spacer />
           <Box textAlign="left">
             <UnorderedList>
               {totalScores.map((el) => {
@@ -214,6 +225,7 @@ const Home: NextPage<Props> = ({
               })}
             </UnorderedList>
           </Box>
+
           <Spacer />
           <OverviewChart data={monthChartData} daysInMonth={daysInMonth} />
 
