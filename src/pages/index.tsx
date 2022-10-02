@@ -33,6 +33,7 @@ import { Loader } from "../../components/lib/Loader";
 import { WorkoutView } from "../../components/WorkoutView";
 import { useRouter } from "next/router";
 import { Wrapper } from "../../components/lib/Wrapper";
+import { TotalScore } from "../../components/TotalScore";
 
 interface UserWorkoutMap {
   [id: string]: number;
@@ -112,18 +113,18 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const lastFive = allWorkouts.reverse().slice(0, 3);
 
-  const result = daysInMonth.map((el) => {
+  const result = daysInMonth.map((dayNumber) => {
     let score = 0;
     const day = new Date();
-    day.setDate(el);
+    day.setDate(dayNumber);
 
-    currentUserWorkouts.filter((workout) => {
+    allWorkouts.filter((workout) => {
       if (isSameDay(workout.date, day)) {
         score += workout.points;
       }
     });
     return {
-      x: el,
+      x: dayNumber,
       y: score,
     };
   });
@@ -136,10 +137,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const todaysWorkout = currentUserWorkouts.find((el) => isToday(el.date));
 
-  const totalScores = Object.keys(totalScoresMap).map((key) => ({
-    name: key,
-    totalScore: totalScoresMap[key] ?? 0,
-  }));
+  const totalScores = Object.keys(totalScoresMap)
+    .map((key) => ({
+      name: key,
+      totalScore: totalScoresMap[key] ?? 0,
+    }))
+    .sort((k, p) => (p.totalScore > k.totalScore ? 1 : -1));
 
   return {
     props: {
@@ -161,10 +164,7 @@ const Home: NextPage<Props> = ({
   hasWorkedOutToday,
   lastFive,
 }) => {
-  // const { data } = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
-
   const router = useRouter();
-
   const session = useSession();
 
   if (session.status == "loading") {
@@ -195,6 +195,7 @@ const Home: NextPage<Props> = ({
               <AlertTitle>Trening lagret</AlertTitle>
               <AlertDescription>Godt jobbet!!!</AlertDescription>
             </Alert>
+            <Spacer />
           </>
         ) : null}
 
@@ -205,19 +206,8 @@ const Home: NextPage<Props> = ({
           </Box>
         ) : null}
 
-        <Heading size="md">Stillingen</Heading>
-        <Spacer />
-        <Box textAlign="left">
-          <UnorderedList>
-            {totalScores.map((el) => {
-              return (
-                <ListItem key={el.name ?? "-"}>
-                  {el.name} - {el.totalScore}
-                </ListItem>
-              );
-            })}
-          </UnorderedList>
-        </Box>
+        <TotalScore totalScores={totalScores} />
+
         <Spacer />
         <Box>
           <Heading size="md" mb="5">

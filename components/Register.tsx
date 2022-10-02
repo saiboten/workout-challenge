@@ -29,13 +29,10 @@ interface Props {
   workoutType: WorkoutType;
 }
 
-type States = "IDLE" | "LOADING" | "SUCCESS";
-
 export const Register = ({ workoutType }: Props) => {
-  const [state, setState] = useState<States>("IDLE");
   const router = useRouter();
 
-  const { mutate } = trpc.useMutation(["workout.workout"]);
+  const { mutate, status } = trpc.useMutation(["workout.workout"]);
 
   const { control, handleSubmit, watch } = useForm<Values>({
     defaultValues: {
@@ -45,17 +42,19 @@ export const Register = ({ workoutType }: Props) => {
   });
 
   const formSubmit = (values: Values) => {
-    setState("LOADING");
     mutate({
       workoutId: workoutType.id,
       iterations: parseInt(values.iterations),
       length: parseInt(values.length),
     });
-    router.push("/?action=addworkoutsuccess");
   };
 
-  if (state === "LOADING") {
+  if (status === "loading") {
     return <Loader />;
+  }
+
+  if (status === "success") {
+    router.push("/?action=addworkoutsuccess");
   }
 
   const { iterations, length } = watch();
