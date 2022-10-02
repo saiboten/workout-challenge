@@ -110,7 +110,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     },
   });
 
-  const lastFive = allWorkouts.slice(0, 3);
+  const lastFive = allWorkouts.reverse().slice(0, 3);
 
   const result = daysInMonth.map((el) => {
     let score = 0;
