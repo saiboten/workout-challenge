@@ -5,7 +5,7 @@ import { Spacer } from "./lib/Spacer";
 interface Props {
   workout: Workout & {
     WorkoutType: WorkoutType | null;
-    User: User | null;
+    User?: User | null;
   };
 }
 
