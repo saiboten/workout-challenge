@@ -49,7 +49,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         WorkoutType: true,
       },
     })
-  ).sort((el1, el2) => (el1.date > el2.date ? 1 : -1));
+  ).sort((el1, el2) => (el1.date < el2.date ? 1 : -1));
   // .map((el) => ({ ...el, date: el.date.toISOString() }));
 
   return {
@@ -87,16 +87,18 @@ const WorkOuts: NextPage<Props> = ({ workouts }) => {
             return (
               <Box key={workout.id} border="1px solid black" padding="5">
                 <Heading size="sm">
-                  {format(workout.date, "d. MMMM")}: {workout.WorkoutType?.name}
+                  {format(workout.date, "d. MMMM hh:mm")}:{" "}
+                  {workout.WorkoutType?.name}
                 </Heading>
 
                 {workout.WorkoutType?.hasLength ? (
-                  <Box>Lengde: {workout.length} minutter</Box>
+                  <Box>Varighet: {workout.length} minutter</Box>
                 ) : null}
 
                 {workout.WorkoutType?.hasIterations ? (
                   <Box>Antall repitisjoner: {workout.iterations}</Box>
                 ) : null}
+                <Spacer />
                 <Box>
                   <strong>{workout.points}</strong> poeng
                 </Box>
