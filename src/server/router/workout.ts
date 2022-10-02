@@ -48,6 +48,7 @@ export const createWorkoutRouter = createRouter().mutation("workout", {
       data: {
         date: new Date(),
         length: input?.length ?? 0,
+        iterations: input?.iterations ?? 0,
         points: calculateScore(input, workOutType),
         userId: ctx.session?.user?.id,
         workoutTypeId: input?.workoutId,

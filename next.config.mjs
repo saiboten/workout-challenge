@@ -20,4 +20,9 @@ export default defineNextConfig({
     locales: ["en"],
     defaultLocale: "en",
   },
+  experimental: {
+    swcPlugins: [
+      ['next-superjson-plugin', {}],
+    ],
+  },
 });

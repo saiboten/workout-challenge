@@ -14,6 +14,7 @@ import {
   addMonths,
   endOfMonth,
   isSameDay,
+  isToday,
   startOfMonth,
 } from "date-fns";
 import { useSession, signOut, getSession } from "next-auth/react";
@@ -29,6 +30,7 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Loader } from "../../components/lib/Loader";
+import { number } from "zod";
 
 const ContainerOuter = styled.div`
   --color-gray-500: rgba(107, 114, 128, 100%);
@@ -60,14 +62,18 @@ const ContainerInner = styled.div`
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 `;
 
+interface UserWorkoutMap {
+  [id: string]: number;
+}
+
 interface Props {
   workoutTypes: WorkoutType[];
   totalScores: {
     name: string | null;
     totalScore: number;
   }[];
-  thisMonthMap: { [id: string]: number };
   daysInMonth: number[];
+  hasWorkedOutToday: boolean;
   monthChartData: {
     x: number;
     y: number;
@@ -86,7 +92,9 @@ const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
   return returnList;
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context
+) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
@@ -99,12 +107,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const monthEnd = endOfMonth(new Date());
 
   const daysInMonth = getDaysInMonth(monthStart, monthEnd);
-
-  const users = await prisma.user.findMany({
-    include: {
-      workouts: true,
-    },
-  });
 
   const thisMonthsWorkouts = await prisma.workout.findMany({
     where: {
@@ -135,39 +137,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   });
 
-  const thisMonthMap = thisMonthsWorkouts.reduce(
-    (s: { [id: string]: number }, n) => {
-      if (!n.User?.name) {
-        throw new Error("Found not find user");
-      }
-
-      const existing = s[n.User.name] ?? 0;
-      s[n.User.name] = existing + n.points;
-
-      return s;
+  const totalScoresMap = thisMonthsWorkouts.reduce(
+    (sum: UserWorkoutMap, workout) => {
+      sum[workout.User?.name ?? ""] =
+        (sum[workout.User?.name ?? ""] ?? 0) + workout.points;
+      return sum;
     },
     {}
   );
 
-  const totalScores = users.map((user) => {
-    const totalScore = user.workouts.reduce((sum, next) => {
-      return sum + next.points;
-    }, 0);
+  const todaysWorkout = thisMonthsWorkouts.find((el) => isToday(el.date));
 
-    return {
-      totalScore,
-      name: user.name,
-      thisMonthMap,
-    };
-  });
+  const totalScores = Object.keys(totalScoresMap).map((key) => ({
+    name: key,
+    totalScore: totalScoresMap[key] ?? 0,
+  }));
 
   return {
     props: {
       workoutTypes,
       totalScores,
-      thisMonthMap,
       daysInMonth,
       monthChartData: result,
+      hasWorkedOutToday: !!todaysWorkout,
     },
   };
 };
@@ -175,9 +167,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const Home: NextPage<Props> = ({
   workoutTypes,
   totalScores,
-  thisMonthMap,
   daysInMonth,
   monthChartData,
+  hasWorkedOutToday,
 }) => {
   // const { data } = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
 
@@ -203,6 +195,13 @@ const Home: NextPage<Props> = ({
           <Heading mb="5" size="lg">
             Treningsutfordring
           </Heading>
+
+          {!hasWorkedOutToday ? (
+            <Box bgColor="khaki" padding="5" color="black" mb="5">
+              Du har ikke samling noen poeng i dag. På tide å komme seg opp på
+              hesten!
+            </Box>
+          ) : null}
 
           <Box textAlign="left">
             <UnorderedList>

@@ -4,10 +4,11 @@ import {
   UnorderedList,
   ListItem,
   Button,
+  Flex,
 } from "@chakra-ui/react";
 import { Workout, WorkoutType } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
-import { endOfMonth, startOfMonth } from "date-fns";
+import { endOfMonth, format, parse, parseISO, startOfMonth } from "date-fns";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { LoggedOut } from "../../components/LoggedOut";
@@ -48,9 +49,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         WorkoutType: true,
       },
     })
-  )
-    .sort((el1, el2) => (el1.date > el2.date ? 1 : -1))
-    .map((el) => ({ ...el, date: el.date.getDate() }));
+  ).sort((el1, el2) => (el1.date > el2.date ? 1 : -1));
+  // .map((el) => ({ ...el, date: el.date.toISOString() }));
 
   return {
     props: {
@@ -82,20 +82,28 @@ const WorkOuts: NextPage<Props> = ({ workouts }) => {
           Treninger
         </Heading>
 
-        <Box textAlign="left">
-          <UnorderedList>
-            {workouts.map((workout) => {
-              return (
-                <ListItem key={workout.id}>
-                  <>
-                    {workout.date}: {workout.WorkoutType?.name} -{" "}
-                    {workout.points} poeng
-                  </>
-                </ListItem>
-              );
-            })}
-          </UnorderedList>
-        </Box>
+        <Flex textAlign="left" flexDirection="column" gap="2">
+          {workouts.map((workout) => {
+            return (
+              <Box key={workout.id} border="1px solid black" padding="5">
+                <Heading size="sm">
+                  {format(workout.date, "d. MMMM")}: {workout.WorkoutType?.name}
+                </Heading>
+
+                {workout.WorkoutType?.hasLength ? (
+                  <Box>Lengde: {workout.length} minutter</Box>
+                ) : null}
+
+                {workout.WorkoutType?.hasIterations ? (
+                  <Box>Antall repitisjoner: {workout.iterations}</Box>
+                ) : null}
+                <Box>
+                  <strong>{workout.points}</strong> poeng
+                </Box>
+              </Box>
+            );
+          })}
+        </Flex>
         <Spacer />
         <Link href="/">
           <Button colorScheme="teal">Tilbake</Button>

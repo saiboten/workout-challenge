@@ -29,6 +29,7 @@ model WorkoutType {
 model Workout {
     id            String       @id @default(cuid())
     length        Int
+    iterations    Int          @default(0)
     date          DateTime
     WorkoutType   WorkoutType? @relation(fields: [workoutTypeId], references: [id])
     workoutTypeId Int?
