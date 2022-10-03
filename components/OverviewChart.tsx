@@ -5,6 +5,7 @@ import {
   VictoryBar,
   VictoryTooltip,
   VictoryStack,
+  VictoryGroup,
 } from "victory";
 
 interface MonthData {
@@ -35,21 +36,20 @@ export const OverviewChart = ({
           }}
         />
         <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />
-        {data.map((oneUserData, index) => {
-          console.log(oneUserData);
-          return (
-            <VictoryBar
-              alignment={index % 2 == 0 ? "end" : "start"}
-              key={index}
-              data={oneUserData}
-              style={{ data: { fill: index % 2 == 0 ? "#c43a31" : "blue" } }}
-              labels={({ datum }) => `y: ${datum.y}`}
-              labelComponent={
-                <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />
-              }
-            />
-          );
-        })}
+        <VictoryGroup colorScale={"qualitative"} offset={20}>
+          {data.map((oneUserData, index) => {
+            return (
+              <VictoryBar
+                key={index}
+                data={oneUserData}
+                labels={({ datum }) => `${datum.y}`}
+                labelComponent={
+                  <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />
+                }
+              />
+            );
+          })}
+        </VictoryGroup>
       </VictoryChart>
     </>
   );
