@@ -1,4 +1,5 @@
-import { Box, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
+import { Box, Flex, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
+import { ProfileImage } from "./lib/ProfileImage";
 import { Spacer } from "./lib/Spacer";
 
 interface Props {
@@ -14,15 +15,18 @@ export const TotalScore = ({ totalScores }: Props) => {
       <Heading size="md">Stillingen</Heading>
       <Spacer />
       <Box textAlign="left">
-        <UnorderedList>
-          {totalScores.map((el) => {
-            return (
-              <ListItem key={el.name ?? "-"}>
-                {el.name} - {el.totalScore}
-              </ListItem>
-            );
-          })}
-        </UnorderedList>
+        {totalScores.map((el) => {
+          return (
+            <Flex alignItems="center" key={el.name ?? "-"}>
+              <Box mr="3">
+                <ProfileImage imageSrc="123" />
+              </Box>
+              <Box>
+                {el.name}: <strong>{el.totalScore}</strong> poeng
+              </Box>
+            </Flex>
+          );
+        })}
       </Box>
     </>
   );

@@ -20,6 +20,9 @@ export default defineNextConfig({
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ['via.placeholder.com'],
+  },
   experimental: {
     swcPlugins: [
       ['next-superjson-plugin', {}],
