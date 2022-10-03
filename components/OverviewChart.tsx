@@ -32,8 +32,8 @@ export const OverviewChart = ({
           orientation="horizontal"
           gutter={20}
           data={[
-            { name: "Synne", symbol: { fill: "tomato" } },
-            { name: "Tobias", symbol: { fill: "grey" } },
+            { name: "Tobias", symbol: { fill: "tomato" } },
+            { name: "Synne", symbol: { fill: "#bbd8fe" } },
           ]}
         />
         <VictoryAxis
@@ -45,7 +45,7 @@ export const OverviewChart = ({
           }}
         />
         <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />
-        <VictoryGroup colorScale={["tomato", "grey"]} offset={16}>
+        <VictoryGroup colorScale={["tomato", "#bbd8fe"]} offset={16}>
           {data.map((oneUserData, index) => {
             return (
               <VictoryBar
