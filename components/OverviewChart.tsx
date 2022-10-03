@@ -24,7 +24,7 @@ export const OverviewChart = ({
   return (
     <>
       <Heading size="lg">Månedens treningspoeng</Heading>
-      <VictoryChart domainPadding={5} height={1400}>
+      <VictoryChart domainPadding={5}>
         <VictoryLegend
           x={80}
           y={10}
@@ -38,6 +38,7 @@ export const OverviewChart = ({
         />
         <VictoryAxis
           tickValues={daysInMonth}
+          tickCount={15}
           style={{
             axisLabel: { fontSize: 20, padding: 30 },
             ticks: { stroke: "grey", size: 5 },
@@ -45,12 +46,11 @@ export const OverviewChart = ({
           }}
         />
         <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />
-        <VictoryGroup colorScale={["tomato", "#bbd8fe"]} offset={16}>
+        <VictoryGroup colorScale={["tomato", "#bbd8fe"]} offset={4}>
           {data.map((oneUserData, index) => {
             return (
               <VictoryBar
-                barWidth={15}
-                horizontal
+                barWidth={3}
                 key={index}
                 data={oneUserData}
                 labels={({ datum }) => `${datum.y}`}

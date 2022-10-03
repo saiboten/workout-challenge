@@ -242,13 +242,7 @@ const Home: NextPage<Props> = ({
         <Spacer />
         <OverviewChart data={workoutChartData} daysInMonth={daysInMonth} />
 
-        <Box
-          p="5"
-          borderRadius="10px"
-          border="1px solid black"
-          m="5"
-          minWidth="100%"
-        >
+        <Box borderRadius="10px" minWidth="100%">
           <Heading size="md">Legg til trening</Heading>
           <Spacer />
           <Stack
@@ -270,8 +264,10 @@ const Home: NextPage<Props> = ({
           </Stack>
         </Box>
 
+        <Spacer />
+
         <Link href="workouts">
-          <Button colorScheme="teal">Se treninger</Button>
+          <Button colorScheme="orange">Se treninger</Button>
         </Link>
 
         <Spacer />
