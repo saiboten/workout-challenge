@@ -15,7 +15,6 @@ import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "../src/utils/trpc";
 import { calculateScore } from "../utils/score";
-import { Loader } from "./lib/Loader";
 import { Spacer } from "./lib/Spacer";
 
 interface Values {

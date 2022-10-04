@@ -6,8 +6,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  Stack,
-  Flex,
 } from "@chakra-ui/react";
 import { User, Workout, WorkoutType } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
@@ -28,11 +26,12 @@ import { Spacer } from "../../components/lib/Spacer";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Loader } from "../../components/lib/Loader";
-import { WorkoutView } from "../../components/WorkoutView";
 import { useRouter } from "next/router";
 import { Wrapper } from "../../components/lib/Wrapper";
 import { TotalScore } from "../../components/TotalScore";
 import { useEffect } from "react";
+import { WorkoutNewsFeed } from "../../components/WorkoutNewsFeed";
+import { AddWorkoutLinks } from "../../components/AddWorkoutLinks";
 
 interface UserWorkoutMap {
   [id: string]: number;
@@ -238,46 +237,11 @@ const Home: NextPage<Props> = ({
         ) : null}
 
         <TotalScore totalScores={totalScores} />
-
         <Spacer />
-        <Box>
-          <Heading size="md" mb="5">
-            Siste treninger
-          </Heading>
-          <Flex textAlign="left" flexDirection="column" gap="2">
-            {lastFive.map((workout) => {
-              return (
-                <WorkoutView key={workout.id} workout={workout}></WorkoutView>
-              );
-            })}
-          </Flex>
-        </Box>
-
+        <WorkoutNewsFeed lastFive={lastFive} />
         <Spacer />
         <OverviewChart data={workoutChartData} daysInMonth={daysInMonth} />
-
-        <Box borderRadius="10px" minWidth="100%">
-          <Heading size="md">Legg til trening</Heading>
-          <Spacer />
-          <Stack
-            direction={{ base: "row" }}
-            align="center"
-            maxWidth="500px"
-            flexWrap="wrap"
-            gap="2"
-          >
-            {workoutTypes.map((workout) => {
-              return (
-                <>
-                  <Link key={workout.id} href={`/create/${workout.id}`}>
-                    <Button colorScheme="teal">{workout.name}</Button>
-                  </Link>
-                </>
-              );
-            })}
-          </Stack>
-        </Box>
-
+        <AddWorkoutLinks workoutTypes={workoutTypes} />
         <Spacer />
 
         <Link href="workouts">

@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, ListItem, UnorderedList } from "@chakra-ui/react";
+import { Box, Flex, Heading } from "@chakra-ui/react";
 import { ProfileImage } from "./lib/ProfileImage";
 import { Spacer } from "./lib/Spacer";
 

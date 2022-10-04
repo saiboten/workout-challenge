@@ -4,7 +4,6 @@ import {
   VictoryAxis,
   VictoryBar,
   VictoryTooltip,
-  VictoryStack,
   VictoryGroup,
   VictoryLegend,
 } from "victory";

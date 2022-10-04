@@ -3,7 +3,7 @@ import React from "react";
 
 export const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Container mt="10" maxW="container.sm" mb="10">
+    <Container mt="10" maxW="container.lg" mb="10">
       {children}
     </Container>
   );
