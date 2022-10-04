@@ -14,13 +14,17 @@ interface MonthData {
   y: number;
 }
 
+const colors = ["tomato", "darkcyan", "grey"] as const;
+
 export const OverviewChart = ({
   data,
   daysInMonth,
 }: {
-  data: MonthData[][];
+  data: { [user: string]: MonthData[] };
   daysInMonth: number[];
 }) => {
+  const users = Object.keys(data);
+
   return (
     <>
       <Heading size="lg">Månedens treningspoeng</Heading>
@@ -31,10 +35,10 @@ export const OverviewChart = ({
           centerTitle
           orientation="horizontal"
           gutter={20}
-          data={[
-            { name: "Tobias", symbol: { fill: "tomato" } },
-            { name: "Synne", symbol: { fill: "#bbd8fe" } },
-          ]}
+          data={users.map((el, index) => ({
+            name: el,
+            symbol: { fill: colors[index % 2] },
+          }))}
         />
         <VictoryAxis
           tickValues={daysInMonth}
@@ -46,13 +50,16 @@ export const OverviewChart = ({
           }}
         />
         <VictoryAxis dependentAxis tickFormat={(x) => `${x}`} />
-        <VictoryGroup colorScale={["tomato", "#bbd8fe"]} offset={4}>
-          {data.map((oneUserData, index) => {
+        <VictoryGroup
+          colorScale={users.map((el, index) => colors[index % 2] ?? "black")}
+          offset={4}
+        >
+          {users.map((userName, index) => {
             return (
               <VictoryBar
                 barWidth={3}
                 key={index}
-                data={oneUserData}
+                data={data[userName]}
                 labels={({ datum }) => `${datum.y}`}
                 labelComponent={
                   <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />

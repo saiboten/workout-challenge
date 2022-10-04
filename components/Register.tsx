@@ -48,10 +48,6 @@ export const Register = ({ workoutType }: Props) => {
     });
   };
 
-  if (status === "loading") {
-    return <Loader />;
-  }
-
   if (status === "success") {
     router.push("/?action=addworkoutsuccess");
   }
@@ -114,7 +110,13 @@ export const Register = ({ workoutType }: Props) => {
           </>
         ) : null}
         <Spacer />
-        <Button type="submit">Lagre</Button>
+        <Button
+          type="submit"
+          isLoading={status === "loading"}
+          disabled={status === "loading" || score === 0}
+        >
+          Lagre
+        </Button>
       </FormControl>
     </form>
   );

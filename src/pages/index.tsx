@@ -32,6 +32,7 @@ import { WorkoutView } from "../../components/WorkoutView";
 import { useRouter } from "next/router";
 import { Wrapper } from "../../components/lib/Wrapper";
 import { TotalScore } from "../../components/TotalScore";
+import { useEffect } from "react";
 
 interface UserWorkoutMap {
   [id: string]: number;
@@ -46,9 +47,11 @@ interface Props {
   daysInMonth: number[];
   hasWorkedOutToday: boolean;
   workoutChartData: {
-    x: number;
-    y: number;
-  }[][];
+    [user: string]: {
+      x: number;
+      y: number;
+    }[];
+  };
   lastFive: (Workout & {
     WorkoutType: WorkoutType | null;
     User: User | null;
@@ -113,13 +116,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const workoutDict = allWorkouts.reduce(
     (sum: { [id: string]: Workout[] }, workout) => {
-      if (!workout.userId) {
+      if (!workout.User?.name) {
         throw Error("Could not find user");
       }
-      if (sum[workout.userId] === undefined) {
-        sum[workout.userId] = [];
+      if (sum[workout.User?.name] === undefined) {
+        sum[workout.User?.name] = [];
       }
-      sum[workout.userId]?.push(workout);
+      sum[workout.User?.name]?.push(workout);
       return sum;
     },
     {}
@@ -127,7 +130,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const users = Object.keys(workoutDict);
 
-  const workoutChartData = users.map((user) => {
+  const workoutChartData = users.reduce((sum, user) => {
     const result = daysInMonth.map((dayNumber) => {
       let score = 0;
       const day = new Date();
@@ -143,8 +146,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
         y: score,
       };
     });
-    return result;
-  });
+    return {
+      ...sum,
+      [user]: result,
+    };
+  }, {});
 
   const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
     sum[workout.User?.name ?? ""] =
@@ -183,6 +189,14 @@ const Home: NextPage<Props> = ({
 }) => {
   const router = useRouter();
   const session = useSession();
+
+  useEffect(() => {
+    if (router.query.action === "addworkoutsuccess") {
+      setTimeout(() => {
+        router.push("/");
+      }, 5000);
+    }
+  }, [router.query.action, router]);
 
   if (session.status == "loading") {
     return <Loader />;
@@ -246,9 +260,9 @@ const Home: NextPage<Props> = ({
           <Heading size="md">Legg til trening</Heading>
           <Spacer />
           <Stack
-            direction={{ base: "column", md: "row" }}
+            direction={{ base: "row" }}
             align="center"
-            maxWidth="800px"
+            maxWidth="500px"
             flexWrap="wrap"
             gap="2"
           >
