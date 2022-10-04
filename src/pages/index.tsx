@@ -115,13 +115,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const workoutDict = allWorkouts.reduce(
     (sum: { [id: string]: Workout[] }, workout) => {
-      if (!workout.User?.name) {
+      const nameOrNick = workout.User?.nickname ?? workout.User?.name;
+      if (nameOrNick === undefined || nameOrNick === null) {
         throw Error("Could not find user");
       }
-      if (sum[workout.User?.name] === undefined) {
-        sum[workout.User?.name] = [];
+      if (sum[nameOrNick] === undefined) {
+        sum[nameOrNick] = [];
       }
-      sum[workout.User?.name]?.push(workout);
+      sum[nameOrNick]?.push(workout);
       return sum;
     },
     {}
@@ -152,8 +153,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   }, {});
 
   const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
-    sum[workout.User?.name ?? ""] =
-      (sum[workout.User?.name ?? ""] ?? 0) + workout.points;
+    sum[workout.User?.nickname ?? workout.User?.name ?? ""] =
+      (sum[workout.User?.nickname ?? workout.User?.name ?? ""] ?? 0) +
+      workout.points;
     return sum;
   }, {});
 
@@ -212,11 +214,7 @@ const Home: NextPage<Props> = ({
         <meta name="description" content="Workout Challenge" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Wrapper>
-        <Heading mb="5" size="lg">
-          Treningsutfordring
-        </Heading>
-
+      <>
         {router.query.action === "addworkoutsuccess" ? (
           <>
             <Spacer />
@@ -251,7 +249,7 @@ const Home: NextPage<Props> = ({
         <Spacer />
 
         <Button onClick={() => signOut()}>Logg ut</Button>
-      </Wrapper>
+      </>
     </>
   );
 };

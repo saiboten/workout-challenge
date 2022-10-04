@@ -12,7 +12,11 @@ interface Props {
 export const WorkoutView = ({ workout }: Props) => {
   return (
     <Box key={workout.id} border="1px solid black" padding="5">
-      {workout.User ? <Heading size="md">{workout.User?.name}</Heading> : null}
+      {workout.User ? (
+        <Heading size="md">
+          {workout.User?.nickname ?? workout.User?.name}
+        </Heading>
+      ) : null}
       <Heading size="sm">
         {format(workout.date, "d. MMMM HH:mm")}: {workout.WorkoutType?.name}
       </Heading>

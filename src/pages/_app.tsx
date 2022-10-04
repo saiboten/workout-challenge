@@ -3,13 +3,25 @@ import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { withTRPC } from "@trpc/next";
 import { ThemeProvider, DefaultTheme } from "styled-components";
-import { ChakraProvider } from "@chakra-ui/react";
+import {
+  Button,
+  ChakraProvider,
+  Flex,
+  Heading,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import superjson from "superjson";
 import type { AppRouter } from "../server/router";
 import type { AppProps } from "next/app";
 import "../styles/globals.css";
+import { Wrapper } from "../../components/lib/Wrapper";
+import Link from "next/link";
 
 const theme: DefaultTheme = {
   colors: {
@@ -23,7 +35,35 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
     <ChakraProvider>
       <ThemeProvider theme={theme}>
         <SessionProvider session={pageProps.session}>
-          <Component {...pageProps} />
+          <Wrapper>
+            <Flex justifyContent="space-between">
+              <Link href="/">
+                <Heading
+                  cursor="pointer"
+                  mb="5"
+                  size="lg"
+                  border="1px solid black"
+                  p="5"
+                  borderRadius="5"
+                >
+                  Treningsutfordring
+                </Heading>
+              </Link>
+              <Flex justifyContent="flex-end">
+                <Menu>
+                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                    Meny
+                  </MenuButton>
+                  <MenuList>
+                    <Link href="/settings" passHref>
+                      <MenuItem>Innstillinger</MenuItem>
+                    </Link>
+                  </MenuList>
+                </Menu>
+              </Flex>
+            </Flex>
+            <Component {...pageProps} />
+          </Wrapper>
         </SessionProvider>
       </ThemeProvider>
     </ChakraProvider>
