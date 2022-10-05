@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Heading,
   Alert,
   AlertIcon,
   AlertTitle,
@@ -27,17 +26,18 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { Loader } from "../../components/lib/Loader";
 import { useRouter } from "next/router";
-import { Wrapper } from "../../components/lib/Wrapper";
 import { TotalScore } from "../../components/TotalScore";
 import { useEffect } from "react";
 import { WorkoutNewsFeed } from "../../components/WorkoutNewsFeed";
 import { AddWorkoutLinks } from "../../components/AddWorkoutLinks";
+import { ProgressLineChart } from "../../components/ProgressLineChart";
 
 interface UserWorkoutMap {
   [id: string]: number;
 }
 
 interface Props {
+  today: Date;
   workoutTypes: WorkoutType[];
   totalScores: {
     name: string | null;
@@ -47,8 +47,9 @@ interface Props {
   hasWorkedOutToday: boolean;
   workoutChartData: {
     [user: string]: {
-      x: number;
-      y: number;
+      dayNumber: number;
+      scoreDay: number;
+      scoreSum: number;
     }[];
   };
   lastFive: (Workout & {
@@ -131,6 +132,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const users = Object.keys(workoutDict);
 
   const workoutChartData = users.reduce((sum, user) => {
+    let userScoreSum = 0;
     const result = daysInMonth.map((dayNumber) => {
       let score = 0;
       const day = new Date();
@@ -139,11 +141,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       workoutDict[user]?.filter((workout) => {
         if (isSameDay(workout.date, day)) {
           score += workout.points;
+          userScoreSum += workout.points;
         }
       });
       return {
-        x: dayNumber,
-        y: score,
+        dayNumber: dayNumber,
+        scoreDay: score,
+        scoreSum: userScoreSum,
       };
     });
     return {
@@ -176,6 +180,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       workoutChartData,
       hasWorkedOutToday: !!todaysWorkout,
       lastFive,
+      today: new Date(),
     },
   };
 };
@@ -187,6 +192,7 @@ const Home: NextPage<Props> = ({
   workoutChartData,
   hasWorkedOutToday,
   lastFive,
+  today,
 }) => {
   const router = useRouter();
   const session = useSession();
@@ -239,6 +245,13 @@ const Home: NextPage<Props> = ({
         <WorkoutNewsFeed lastFive={lastFive} />
         <Spacer />
         <OverviewChart data={workoutChartData} daysInMonth={daysInMonth} />
+        <Spacer />
+        <ProgressLineChart
+          data={workoutChartData}
+          daysInMonth={daysInMonth}
+          today={today}
+        />
+        <Spacer />
         <AddWorkoutLinks workoutTypes={workoutTypes} />
         <Spacer />
 

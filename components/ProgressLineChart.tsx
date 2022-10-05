@@ -1,11 +1,10 @@
-import { Heading } from "@chakra-ui/react";
 import {
   VictoryChart,
   VictoryAxis,
-  VictoryBar,
   VictoryTooltip,
   VictoryGroup,
   VictoryLegend,
+  VictoryLine,
 } from "victory";
 
 interface MonthData {
@@ -16,10 +15,12 @@ interface MonthData {
 
 const colors = ["tomato", "darkcyan", "grey"] as const;
 
-export const OverviewChart = ({
+export const ProgressLineChart = ({
   data,
   daysInMonth,
+  today,
 }: {
+  today: Date;
   data: { [user: string]: MonthData[] };
   daysInMonth: number[];
 }) => {
@@ -27,7 +28,6 @@ export const OverviewChart = ({
 
   return (
     <>
-      <Heading size="lg">Månedens treningspoeng</Heading>
       <VictoryChart domainPadding={5}>
         <VictoryLegend
           x={80}
@@ -41,7 +41,9 @@ export const OverviewChart = ({
           }))}
         />
         <VictoryAxis
-          tickValues={daysInMonth}
+          tickValues={daysInMonth.filter(
+            (dayNumber) => dayNumber <= today.getDate()
+          )}
           tickCount={15}
           style={{
             axisLabel: { fontSize: 20, padding: 30 },
@@ -56,13 +58,14 @@ export const OverviewChart = ({
         >
           {users.map((userName, index) => {
             return (
-              <VictoryBar
-                barWidth={3}
+              <VictoryLine
                 key={index}
-                data={data[userName]?.map((el) => ({
-                  x: el.dayNumber,
-                  y: el.scoreDay,
-                }))}
+                data={data[userName]
+                  ?.filter((el) => el.dayNumber <= today.getDate())
+                  ?.map((el) => ({
+                    x: el.dayNumber,
+                    y: el.scoreSum,
+                  }))}
                 labels={({ datum }) => `${datum.y}`}
                 labelComponent={
                   <VictoryTooltip flyoutHeight={20} style={{ fontSize: 10 }} />
