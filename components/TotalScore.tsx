@@ -1,5 +1,5 @@
 import { Box, Flex, Heading } from "@chakra-ui/react";
-import { VictoryBar, VictoryChart, VictoryGroup } from "victory";
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryGroup } from "victory";
 import { ProfileImage } from "./lib/ProfileImage";
 import { Spacer } from "./lib/Spacer";
 
@@ -17,7 +17,8 @@ export const TotalScore = ({ totalScores }: Props) => {
     <>
       <Heading size="md">Stillingen</Heading>
       <Spacer />
-      <VictoryGroup>
+      <VictoryChart>
+        <VictoryAxis />
         <VictoryBar
           x={"name"}
           y={"totalScore"}
@@ -31,7 +32,7 @@ export const TotalScore = ({ totalScores }: Props) => {
             },
           }}
         />
-      </VictoryGroup>
+      </VictoryChart>
     </>
   );
 };
