@@ -12,6 +12,7 @@ import { User, Workout, WorkoutType } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
 import {
   addDays,
+  addMonths,
   endOfMonth,
   isBefore,
   isSameDay,
@@ -129,7 +130,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   });
 
   const scoreThisTimeLastMonth = myWorkoutsLastMonth
-    .filter((workout) => isBefore(subMonths(workout.date, 1), new Date()))
+    .filter((workout) => isBefore(addMonths(workout.date, 1), new Date()))
     .reduce((a, b) => a + b.points, 0);
 
   const allWorkouts = await prisma.workout.findMany({
