@@ -13,6 +13,10 @@ interface Props {
 const color = ["chocolate", "darkcyan"];
 
 export const TotalScore = ({ totalScores }: Props) => {
+  if (totalScores.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <Heading size="md">Stillingen</Heading>

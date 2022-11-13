@@ -10,6 +10,10 @@ interface Props {
 }
 
 export const WorkoutNewsFeed = ({ lastFive }: Props) => {
+  if (lastFive.length === 0) {
+    return null;
+  }
+
   return (
     <Box>
       <Heading size="md" mb="5">

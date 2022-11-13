@@ -5,15 +5,20 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  propNames,
+  Text,
 } from "@chakra-ui/react";
 import { User, Workout, WorkoutType } from "@prisma/client";
 import type { GetServerSideProps, NextPage } from "next";
 import {
   addDays,
   endOfMonth,
+  isBefore,
   isSameDay,
   isToday,
+  setDate,
   startOfMonth,
+  subMonths,
 } from "date-fns";
 import { useSession, signOut } from "next-auth/react";
 import Head from "next/head";
@@ -56,6 +61,7 @@ interface Props {
     WorkoutType: WorkoutType | null;
     User: User | null;
   })[];
+  scoreThisTimeLastMonth: number;
 }
 
 const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
@@ -69,6 +75,29 @@ const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
 
   return returnList;
 };
+
+function getTotalScores(
+  allWorkouts: (Workout & {
+    WorkoutType: WorkoutType | null;
+    User: User | null;
+  })[]
+) {
+  const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
+    sum[workout.User?.nickname ?? workout.User?.name ?? ""] =
+      (sum[workout.User?.nickname ?? workout.User?.name ?? ""] ?? 0) +
+      workout.points;
+    return sum;
+  }, {});
+
+  const totalScores = Object.keys(totalScoresMap)
+    .map((key) => ({
+      name: key,
+      totalScore: totalScoresMap[key] ?? 0,
+    }))
+    .sort((k, p) => (p.totalScore > k.totalScore ? 1 : -1));
+
+  return totalScores;
+}
 
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context
@@ -84,20 +113,24 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const monthStart = startOfMonth(new Date());
   const monthEnd = endOfMonth(new Date());
 
+  const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+  const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
+
   const daysInMonth = getDaysInMonth(monthStart, monthEnd);
 
-  const currentUserWorkouts = await prisma.workout.findMany({
+  const myWorkoutsLastMonth = await prisma.workout.findMany({
     where: {
       date: {
-        gte: monthStart,
-        lte: monthEnd,
+        gte: lastMonthStart,
+        lte: lastMonthEnd,
       },
-      userId: session?.user?.id,
-    },
-    include: {
-      User: true,
+      userId: session?.user?.id ?? "",
     },
   });
+
+  const scoreThisTimeLastMonth = myWorkoutsLastMonth
+    .filter((workout) => isBefore(subMonths(workout.date, 1), new Date()))
+    .reduce((a, b) => a + b.points, 0);
 
   const allWorkouts = await prisma.workout.findMany({
     where: {
@@ -129,9 +162,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     {}
   );
 
-  const users = Object.keys(workoutDict);
-
-  const workoutChartData = users.reduce((sum, user) => {
+  const workoutChartData = Object.keys(workoutDict).reduce((sum, user) => {
     let userScoreSum = 0;
     const result = daysInMonth.map((dayNumber) => {
       let score = 0;
@@ -156,31 +187,20 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     };
   }, {});
 
-  const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
-    sum[workout.User?.nickname ?? workout.User?.name ?? ""] =
-      (sum[workout.User?.nickname ?? workout.User?.name ?? ""] ?? 0) +
-      workout.points;
-    return sum;
-  }, {});
-
-  const todaysWorkout = currentUserWorkouts.find((el) => isToday(el.date));
-
-  const totalScores = Object.keys(totalScoresMap)
-    .map((key) => ({
-      name: key,
-      totalScore: totalScoresMap[key] ?? 0,
-    }))
-    .sort((k, p) => (p.totalScore > k.totalScore ? 1 : -1));
-
   return {
     props: {
+      // globals
       workoutTypes,
-      totalScores,
       daysInMonth,
-      workoutChartData,
-      hasWorkedOutToday: !!todaysWorkout,
-      lastFive,
       today: new Date(),
+      // user data
+      totalScores: getTotalScores(allWorkouts),
+      workoutChartData,
+      hasWorkedOutToday: !!allWorkouts
+        .filter((el) => el.User?.id === session?.user?.id)
+        .find((el) => isToday(el.date)),
+      lastFive,
+      scoreThisTimeLastMonth,
     },
   };
 };
@@ -193,6 +213,7 @@ const Home: NextPage<Props> = ({
   hasWorkedOutToday,
   lastFive,
   today,
+  scoreThisTimeLastMonth,
 }) => {
   const router = useRouter();
   const session = useSession();
@@ -241,6 +262,12 @@ const Home: NextPage<Props> = ({
         ) : null}
 
         <TotalScore totalScores={totalScores} />
+
+        <Spacer />
+        <Text>
+          Siste måned på denne dagen hadde du {scoreThisTimeLastMonth} poeng
+        </Text>
+
         <Spacer />
         <WorkoutNewsFeed lastFive={lastFive} />
         <Spacer />
