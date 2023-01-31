@@ -31,32 +31,59 @@ const input = z
   })
   .nullish();
 
-export const createWorkoutRouter = createRouter().mutation("workout", {
-  input,
-  async resolve({ input, ctx }) {
-    const workOutType = await ctx.prisma?.workoutType.findUnique({
-      where: {
-        id: input?.workoutId,
-      },
-    });
+export const createWorkoutRouter = createRouter()
+  .mutation("workout", {
+    input,
+    async resolve({ input, ctx }) {
+      const workOutType = await ctx.prisma?.workoutType.findUnique({
+        where: {
+          id: input?.workoutId,
+        },
+      });
 
-    if (!workOutType) {
-      throw new Error("Could not find workout type");
-    }
+      if (!workOutType) {
+        throw new Error("Could not find workout type");
+      }
 
-    const res = await ctx.prisma?.workout.create({
-      data: {
-        date: new Date(),
-        length: input?.length ?? 0,
-        iterations: input?.iterations ?? 0,
-        points: calculateScore(input, workOutType),
-        userId: ctx.session?.user?.id,
-        workoutTypeId: input?.workoutId,
-      },
-    });
+      const res = await ctx.prisma?.workout.create({
+        data: {
+          date: new Date(),
+          length: input?.length ?? 0,
+          iterations: input?.iterations ?? 0,
+          points: calculateScore(input, workOutType),
+          userId: ctx.session?.user?.id,
+          workoutTypeId: input?.workoutId,
+        },
+      });
 
-    return {
-      workout: res,
-    };
-  },
-});
+      return {
+        workout: res,
+      };
+    },
+  })
+  .query("workouttypes", {
+    async resolve({ ctx }) {
+      const workoutTypes = await ctx.prisma.workoutType.findMany();
+
+      return {
+        workoutTypes,
+      };
+    },
+  })
+  .query("totalscore", {
+    async resolve({ ctx }) {
+      const workoutsUser = await ctx.prisma.workout.findMany({
+        where: {
+          userId: ctx.session?.user?.id,
+        },
+      });
+
+      const sum = workoutsUser.reduce((sum, next) => {
+        return next.points;
+      }, 0);
+
+      return {
+        sum,
+      };
+    },
+  });

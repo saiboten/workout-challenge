@@ -37,6 +37,8 @@ import { useEffect } from "react";
 import { WorkoutNewsFeed } from "../../components/WorkoutNewsFeed";
 import { AddWorkoutLinks } from "../../components/AddWorkoutLinks";
 import { ProgressLineChart } from "../../components/ProgressLineChart";
+import { trpc } from "../utils/trpc";
+import { Sum } from "../../components/Sum";
 
 interface UserWorkoutMap {
   [id: string]: number;
@@ -44,7 +46,6 @@ interface UserWorkoutMap {
 
 interface Props {
   today: Date;
-  workoutTypes: WorkoutType[];
   totalScores: {
     name: string | null;
     totalScore: number;
@@ -108,8 +109,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     context.res,
     authOptions
   );
-
-  const workoutTypes = await prisma.workoutType.findMany();
 
   const monthStart = startOfMonth(new Date());
   const monthEnd = endOfMonth(new Date());
@@ -191,7 +190,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   return {
     props: {
       // globals
-      workoutTypes,
       daysInMonth,
       today: new Date(),
       // user data
@@ -207,7 +205,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 };
 
 const Home: NextPage<Props> = ({
-  workoutTypes,
   totalScores,
   daysInMonth,
   workoutChartData,
@@ -218,6 +215,9 @@ const Home: NextPage<Props> = ({
 }) => {
   const router = useRouter();
   const session = useSession();
+  const { data: workoutTypesData, isLoading } = trpc.useQuery([
+    "workout.workouttypes",
+  ]);
 
   useEffect(() => {
     if (router.query.action === "addworkoutsuccess") {
@@ -227,12 +227,16 @@ const Home: NextPage<Props> = ({
     }
   }, [router.query.action, router]);
 
-  if (session.status == "loading") {
+  if (session.status == "loading" || isLoading) {
     return <Loader />;
   }
 
   if (session.status == "unauthenticated") {
     return <LoggedOut />;
+  }
+
+  if (!workoutTypesData?.workoutTypes) {
+    throw new Error("No data?!");
   }
 
   return (
@@ -262,6 +266,8 @@ const Home: NextPage<Props> = ({
           </Box>
         ) : null}
 
+        <Sum />
+
         <TotalScore totalScores={totalScores} />
 
         <Spacer />
@@ -280,7 +286,7 @@ const Home: NextPage<Props> = ({
           today={today}
         />
         <Spacer />
-        <AddWorkoutLinks workoutTypes={workoutTypes} />
+        <AddWorkoutLinks workoutTypes={workoutTypesData?.workoutTypes} />
         <Spacer />
 
         <Link href="workouts">
