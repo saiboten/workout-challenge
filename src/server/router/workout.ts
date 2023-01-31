@@ -79,7 +79,7 @@ export const createWorkoutRouter = createRouter()
       });
 
       const sum = workoutsUser.reduce((sum, next) => {
-        return next.points;
+        return next.points + sum;
       }, 0);
 
       return {
