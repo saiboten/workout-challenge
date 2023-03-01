@@ -1,9 +1,9 @@
 import { Heading, Text } from "@chakra-ui/react";
-import { trpc } from "../src/utils/trpc";
+import { api } from "~/utils/api";
 import { Loader } from "./lib/Loader";
 
 export const Sum = () => {
-  const { data, isLoading } = trpc.useQuery(["workout.totalscore"]);
+  const { data, isLoading } = api.workout.totalscore.useQuery();
 
   if (isLoading) {
     return <Loader />;

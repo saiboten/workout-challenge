@@ -13,15 +13,15 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { trpc } from "../src/utils/trpc";
 import { Spacer } from "../components/lib/Spacer";
+import { api } from "~/utils/api";
 
 interface Props {
   nickname?: string | null;
 }
 
 export function AddNickName({ nickname: existingNick }: Props) {
-  const { mutate, status } = trpc.useMutation(["settings.nickname"]);
+  const { mutate, status } = api.settings.updateUser.useMutation();
   const [nickName, setNickName] = useState(existingNick ?? "");
   const [error, setError] = useState("");
 

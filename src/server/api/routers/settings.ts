@@ -1,4 +1,5 @@
-import { createRouter } from "./context";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+
 import { z } from "zod";
 
 const input = z
@@ -7,10 +8,9 @@ const input = z
   })
   .nullish();
 
-export const createSettingsRouter = createRouter().mutation("nickname", {
-  input,
-  async resolve({ input, ctx }) {
-    const res = await ctx.prisma?.user.update({
+export const settingsRouter = createTRPCRouter({
+  updateUser: protectedProcedure.input(input).mutation(({ input, ctx }) => {
+    const res = ctx.prisma?.user.update({
       where: {
         id: ctx.session?.user?.id,
       },
@@ -22,5 +22,5 @@ export const createSettingsRouter = createRouter().mutation("nickname", {
     return {
       success: res,
     };
-  },
+  }),
 });

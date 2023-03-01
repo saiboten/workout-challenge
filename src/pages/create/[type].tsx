@@ -1,50 +1,38 @@
 import { Link } from "@chakra-ui/react";
-import { WorkoutType } from "@prisma/client";
-import type { GetServerSidePropsContext, NextPage } from "next";
+import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import NextLink from "next/link";
+import { api } from "~/utils/api";
+import Router, { useRouter } from "next/router";
 import { Loader } from "../../../components/lib/Loader";
 import { Wrapper } from "../../../components/lib/Wrapper";
 import { LoggedOut } from "../../../components/LoggedOut";
 import { Register } from "../../../components/Register";
-import { prisma } from "../../server/db/client";
 
-interface Props {
-  workout: WorkoutType;
-}
-
-export async function getServerSideProps(
-  context: GetServerSidePropsContext
-): Promise<{ props: Props }> {
-  const { type } = context.query;
-
-  if (!type) {
-    throw Error("could not find query");
-  }
-
-  const workout = await prisma.workoutType.findUniqueOrThrow({
-    where: {
-      id: Number(type),
-    },
-  });
-
-  return {
-    props: {
-      workout,
-    }, // will be passed to the page component as props
-  };
-}
-
-const Home: NextPage<Props> = ({ workout }) => {
+const Home: NextPage = () => {
   const session = useSession();
 
-  if (session.status == "loading") {
+  const router = useRouter();
+  const { type } = router.query;
+
+  if (typeof type !== "string") {
+    throw new Error("Nope");
+  }
+
+  const { data: workoutTypeData, isLoading } =
+    api.workout.getWorkoutType.useQuery(type);
+
+  if (session.status == "loading" || isLoading) {
     return <Loader />;
   }
 
   if (session.status == "unauthenticated") {
     return <LoggedOut />;
+  }
+
+  if (!workoutTypeData) {
+    throw new Error("What");
   }
 
   return (
@@ -55,7 +43,7 @@ const Home: NextPage<Props> = ({ workout }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Wrapper>
-        <Register workoutType={workout} />
+        <Register workoutType={workoutTypeData} />
         <NextLink href="/" passHref>
           <Link>Tilbake</Link>
         </NextLink>

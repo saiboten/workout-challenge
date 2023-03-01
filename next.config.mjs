@@ -24,8 +24,6 @@ export default defineNextConfig({
     domains: ['via.placeholder.com'],
   },
   experimental: {
-    swcPlugins: [
-      ['next-superjson-plugin', {}],
-    ],
+    swcPlugins: [],
   },
 });

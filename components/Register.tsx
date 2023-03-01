@@ -13,7 +13,7 @@ import {
 import { WorkoutType } from "@prisma/client";
 import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
-import { trpc } from "../src/utils/trpc";
+import { api } from "~/utils/api";
 import { calculateScore } from "../utils/score";
 import { Spacer } from "./lib/Spacer";
 
@@ -30,7 +30,7 @@ interface Props {
 export const Register = ({ workoutType }: Props) => {
   const router = useRouter();
 
-  const { mutate, status } = trpc.useMutation(["workout.workout"]);
+  const { mutate, status } = api.workout.workout.useMutation();
 
   const { control, handleSubmit, watch } = useForm<Values>({
     defaultValues: {
