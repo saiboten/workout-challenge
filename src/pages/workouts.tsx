@@ -1,21 +1,21 @@
-import { Heading, Button, Flex } from "@chakra-ui/react";
-import { Workout, WorkoutType } from "@prisma/client";
-import type { GetServerSideProps, NextPage } from "next";
-import { endOfMonth, startOfMonth } from "date-fns";
-import { useSession } from "next-auth/react";
-import Head from "next/head";
-import { LoggedOut } from "../../components/LoggedOut";
-import { Wrapper } from "../../components/lib/Wrapper";
-import Link from "next/link";
-import { Spacer } from "../../components/lib/Spacer";
-import { Loader } from "../../components/lib/Loader";
-import { WorkoutView } from "../../components/WorkoutView";
+// import { Heading, Button, Flex } from "@chakra-ui/react";
+// import { Workout, WorkoutType } from "@prisma/client";
+import type { NextPage } from "next";
+// import { endOfMonth, startOfMonth } from "date-fns";
+// import { useSession } from "next-auth/react";
+// import Head from "next/head";
+// import { LoggedOut } from "../../components/LoggedOut";
+// import { Wrapper } from "../../components/lib/Wrapper";
+// import Link from "next/link";
+// import { Spacer } from "../../components/lib/Spacer";
+// import { Loader } from "../../components/lib/Loader";
+// import { WorkoutView } from "../../components/WorkoutView";
 
-interface Props {
-  workouts: (Workout & {
-    WorkoutType: WorkoutType | null;
-  })[];
-}
+// interface Props {
+//   workouts: (Workout & {
+//     WorkoutType: WorkoutType | null;
+//   })[];
+// }
 
 // export const getServerSideProps: GetServerSideProps = async (context) => {
 //   const session = await unstable_getServerSession(

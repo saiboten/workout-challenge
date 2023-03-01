@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import NextLink from "next/link";
 import { api } from "~/utils/api";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { Loader } from "../../../components/lib/Loader";
 import { Wrapper } from "../../../components/lib/Wrapper";
 import { LoggedOut } from "../../../components/LoggedOut";

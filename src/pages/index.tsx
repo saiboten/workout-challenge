@@ -5,7 +5,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  propNames,
   Text,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
