@@ -1,38 +1,22 @@
 import { Heading } from "@chakra-ui/react";
-import type { GetServerSideProps, NextPage } from "next";
+import { Loader } from "components/lib/Loader";
+import type { NextPage } from "next";
 import Head from "next/head";
-import { prisma } from "../server/db/client";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
+import { api } from "~/utils/api";
 import { AddNickName } from "../../components/AddNickName";
 
-interface Props {
-  existingNickName?: string | null;
-}
+const Home: NextPage = () => {
+  // todo
+  const { data, isLoading } = api.settings.getUser.useQuery();
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context
-) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+  if (isLoading) {
+    return <Loader />;
+  }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session?.user?.id,
-    },
-  });
+  if (!data) {
+    throw new Error("Ingen data?!");
+  }
 
-  return {
-    props: {
-      existingNickName: user?.nickname,
-    },
-  };
-};
-
-const Home: NextPage<Props> = ({ existingNickName }) => {
   return (
     <>
       <Head>
@@ -45,7 +29,7 @@ const Home: NextPage<Props> = ({ existingNickName }) => {
           Innstillinger
         </Heading>
 
-        <AddNickName nickname={existingNickName} />
+        <AddNickName nickname={data.existingNickName} />
       </>
     </>
   );
