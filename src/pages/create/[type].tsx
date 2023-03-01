@@ -17,7 +17,7 @@ const Home: NextPage = () => {
   const { type } = router.query;
 
   if (typeof type !== "string") {
-    throw new Error("Nope");
+    return <div>Not a string</div>;
   }
 
   const { data: workoutTypeData, isLoading } =

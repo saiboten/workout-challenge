@@ -27,7 +27,7 @@ export function AddNickName({ nickname: existingNick }: Props) {
 
   const toast = useToast();
 
-  function submitNickname(e: any) {
+  function submitNickname(e: React.SyntheticEvent) {
     e.preventDefault();
     mutate({
       nickName: nickName,

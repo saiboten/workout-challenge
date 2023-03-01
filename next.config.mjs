@@ -20,8 +20,5 @@ export default defineNextConfig({
   },
   images: {
     domains: ['via.placeholder.com'],
-  },
-  experimental: {
-    swcPlugins: [],
-  },
+  }
 });
