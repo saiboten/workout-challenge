@@ -31,6 +31,7 @@ export const chartRouter = createTRPCRouter({
   getChart: protectedProcedure
     .input(z.number())
     .query(async ({ input, ctx }) => {
+      const today = new Date();
       const monthStart = addMonths(startOfMonth(new Date()), input);
       const monthEnd = addMonths(endOfMonth(new Date()), input);
 
@@ -95,6 +96,6 @@ export const chartRouter = createTRPCRouter({
         };
       }, {});
 
-      return { workoutChartData, daysInMonth };
+      return { workoutChartData, daysInMonth, today };
     }),
 });

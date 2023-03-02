@@ -6,25 +6,25 @@ import {
   VictoryLegend,
   VictoryLine,
 } from "victory";
-
-interface MonthData {
-  scoreSum: number;
-  scoreDay: number;
-  dayNumber: number;
-}
+import { api } from "~/utils/api";
+import { Loader } from "./lib/Loader";
 
 const colors = ["tomato", "darkcyan", "grey"] as const;
 
-export const ProgressLineChart = ({
-  data,
-  daysInMonth,
-  today,
-}: {
-  today: Date;
-  data: { [user: string]: MonthData[] };
-  daysInMonth: number[];
-}) => {
-  const users = Object.keys(data);
+export const ProgressLineChart = ({ month }: { month: number }) => {
+  const { data: chartData, isLoading } = api.chart.getChart.useQuery(month);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (!chartData) {
+    throw new Error("No data");
+  }
+
+  const { daysInMonth, workoutChartData, today } = chartData;
+
+  const users = Object.keys(workoutChartData);
 
   return (
     <>
@@ -60,7 +60,7 @@ export const ProgressLineChart = ({
             return (
               <VictoryLine
                 key={index}
-                data={data[userName]
+                data={workoutChartData[userName]
                   ?.filter((el) => el.dayNumber <= today.getDate())
                   ?.map((el) => ({
                     x: el.dayNumber,

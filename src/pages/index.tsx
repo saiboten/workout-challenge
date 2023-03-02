@@ -139,11 +139,7 @@ const Home: NextPage = ({}) => {
         <Spacer />
         <OverviewChart month={month} />
         <Spacer />
-        <ProgressLineChart
-          data={workoutChartData}
-          daysInMonth={daysInMonth}
-          today={today}
-        />
+        <ProgressLineChart month={month} />
         <Spacer />
         <AddWorkoutLinks workoutTypes={workoutTypesData?.workoutTypes} />
         <Spacer />
