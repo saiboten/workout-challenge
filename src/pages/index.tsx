@@ -68,14 +68,7 @@ const Home: NextPage = ({}) => {
     throw new Error("No home page data?");
   }
 
-  const {
-    daysInMonth,
-    workoutChartData,
-    hasWorkedOutToday,
-    lastFive,
-    today,
-    scoreThisTimeLastMonth,
-  } = homedata;
+  const { hasWorkedOutToday, lastFive, scoreThisTimeLastMonth } = homedata;
 
   const monthText = addMonths(new Date(), month);
 

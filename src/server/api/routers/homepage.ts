@@ -1,34 +1,13 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 import {
-  addDays,
   addMonths,
   endOfMonth,
   isBefore,
-  isSameDay,
   isToday,
-  setDate,
   startOfMonth,
   subMonths,
 } from "date-fns";
-
-import { User, Workout, WorkoutType } from "@prisma/client";
-
-interface UserWorkoutMap {
-  [id: string]: number;
-}
-
-const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
-  const returnList = [];
-  let currentDate = monthStart;
-
-  while (currentDate < monthEnd) {
-    returnList.push(currentDate.getDate());
-    currentDate = addDays(currentDate, 1);
-  }
-
-  return returnList;
-};
 
 export const homepageRouter = createTRPCRouter({
   homedata: protectedProcedure.query(async ({ ctx }) => {
@@ -37,8 +16,6 @@ export const homepageRouter = createTRPCRouter({
 
     const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
     const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
-
-    const daysInMonth = getDaysInMonth(monthStart, monthEnd);
 
     const myWorkoutsLastMonth = await ctx.prisma.workout.findMany({
       where: {
@@ -69,52 +46,8 @@ export const homepageRouter = createTRPCRouter({
 
     const lastFive = allWorkouts.reverse().slice(0, 3);
 
-    const workoutDict = allWorkouts.reduce(
-      (sum: { [id: string]: Workout[] }, workout) => {
-        const nameOrNick = workout.User?.nickname ?? workout.User?.name;
-        if (nameOrNick === undefined || nameOrNick === null) {
-          throw Error("Could not find user");
-        }
-        if (sum[nameOrNick] === undefined) {
-          sum[nameOrNick] = [];
-        }
-        sum[nameOrNick]?.push(workout);
-        return sum;
-      },
-      {}
-    );
-
-    const workoutChartData = Object.keys(workoutDict).reduce((sum, user) => {
-      let userScoreSum = 0;
-      const result = daysInMonth.map((dayNumber) => {
-        let score = 0;
-        const day = new Date();
-        day.setDate(dayNumber);
-
-        workoutDict[user]?.filter((workout) => {
-          if (isSameDay(workout.date, day)) {
-            score += workout.points;
-            userScoreSum += workout.points;
-          }
-        });
-        return {
-          dayNumber: dayNumber,
-          scoreDay: score,
-          scoreSum: userScoreSum,
-        };
-      });
-      return {
-        ...sum,
-        [user]: result,
-      };
-    }, {});
-
     return {
-      // globals
-      daysInMonth,
-      today: new Date(),
       // user data
-      workoutChartData,
       hasWorkedOutToday: !!allWorkouts
         .filter((el) => el.User?.id === ctx.session?.user?.id)
         .find((el) => isToday(el.date)),
