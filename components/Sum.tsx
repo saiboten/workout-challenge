@@ -14,7 +14,7 @@ export const Sum = () => {
       <Heading size="md" mb="2">
         Sum totalt alle måneder
       </Heading>
-      <Text>{data?.sum ?? 0} poeng</Text>
+      <Text>{data ?? 0} poeng</Text>
     </Text>
   );
 };

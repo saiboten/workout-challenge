@@ -81,9 +81,7 @@ export const workoutRouter = createTRPCRouter({
       return next.points + sum;
     }, 0);
 
-    return {
-      sum,
-    };
+    return sum;
   }),
   getWorkoutType: protectedProcedure
     .input(z.string())

@@ -1,6 +1,7 @@
-import { Heading } from "@chakra-ui/react";
+import { Button, Heading } from "@chakra-ui/react";
 import { Loader } from "components/lib/Loader";
 import type { NextPage } from "next";
+import { signOut } from "next-auth/react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { AddNickName } from "../../components/AddNickName";
@@ -30,6 +31,8 @@ const Home: NextPage = () => {
         </Heading>
 
         <AddNickName nickname={data.existingNickName} />
+
+        <Button onClick={() => signOut()}>Logg ut</Button>
       </>
     </>
   );

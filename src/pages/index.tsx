@@ -142,8 +142,6 @@ const Home: NextPage = ({}) => {
         </Link>
 
         <Spacer />
-
-        <Button onClick={() => signOut()}>Logg ut</Button>
       </>
     </>
   );
