@@ -64,7 +64,6 @@ const Home: NextPage = ({}) => {
   }
 
   const {
-    totalScores,
     daysInMonth,
     workoutChartData,
     hasWorkedOutToday,
@@ -102,7 +101,7 @@ const Home: NextPage = ({}) => {
 
         <Sum />
 
-        <TotalScore totalScores={totalScores} />
+        <TotalScore />
 
         <Spacer />
         <Text>
