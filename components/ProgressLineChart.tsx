@@ -42,7 +42,7 @@ export const ProgressLineChart = ({ month }: { month: number }) => {
         />
         <VictoryAxis
           tickValues={daysInMonth.filter(
-            (dayNumber) => dayNumber <= today.getDate()
+            (dayNumber) => month < 0 || dayNumber <= today.getDate()
           )}
           tickCount={15}
           style={{
@@ -61,7 +61,7 @@ export const ProgressLineChart = ({ month }: { month: number }) => {
               <VictoryLine
                 key={index}
                 data={workoutChartData[userName]
-                  ?.filter((el) => el.dayNumber <= today.getDate())
+                  ?.filter((el) => month < 0 || el.dayNumber <= today.getDate())
                   ?.map((el) => ({
                     x: el.dayNumber,
                     y: el.scoreSum,

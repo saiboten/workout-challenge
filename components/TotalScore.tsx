@@ -1,7 +1,4 @@
-import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
-import { Button, Flex, Heading, Text } from "@chakra-ui/react";
-import { addMonths, format } from "date-fns";
-import { useState } from "react";
+import { Heading } from "@chakra-ui/react";
 import { VictoryAxis, VictoryBar, VictoryChart } from "victory";
 import { api } from "~/utils/api";
 import { Loader } from "./lib/Loader";

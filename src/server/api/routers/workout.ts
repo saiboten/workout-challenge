@@ -1,14 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { Workout, WorkoutType } from "@prisma/client";
-import {
-  addDays,
-  addMonths,
-  endOfMonth,
-  isSameDay,
-  startOfMonth,
-  subMonths,
-} from "date-fns";
+import { WorkoutType } from "@prisma/client";
+import { addMonths, endOfMonth, startOfMonth } from "date-fns";
 
 interface UserWorkoutMap {
   [id: string]: number;
@@ -34,18 +27,6 @@ export function calculateScore(
 
   return sum;
 }
-
-const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
-  const returnList = [];
-  let currentDate = monthStart;
-
-  while (currentDate < monthEnd) {
-    returnList.push(currentDate.getDate());
-    currentDate = addDays(currentDate, 1);
-  }
-
-  return returnList;
-};
 
 const input = z
   .object({

@@ -4,15 +4,11 @@ import {
   addDays,
   addMonths,
   endOfMonth,
-  isBefore,
   isSameDay,
-  isToday,
-  setDate,
   startOfMonth,
-  subMonths,
 } from "date-fns";
 
-import { User, Workout, WorkoutType } from "@prisma/client";
+import { Workout } from "@prisma/client";
 import { z } from "zod";
 
 const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
