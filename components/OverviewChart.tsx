@@ -7,23 +7,25 @@ import {
   VictoryGroup,
   VictoryLegend,
 } from "victory";
-
-interface MonthData {
-  scoreSum: number;
-  scoreDay: number;
-  dayNumber: number;
-}
+import { api } from "~/utils/api";
+import { Loader } from "./lib/Loader";
 
 const colors = ["tomato", "darkcyan", "grey"] as const;
 
-export const OverviewChart = ({
-  data,
-  daysInMonth,
-}: {
-  data: { [user: string]: MonthData[] };
-  daysInMonth: number[];
-}) => {
-  const users = Object.keys(data);
+export const OverviewChart = ({ month }: { month: number }) => {
+  const { data: chartData, isLoading } = api.chart.getChart.useQuery(month);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (!chartData) {
+    throw new Error("No data");
+  }
+
+  const { daysInMonth, workoutChartData } = chartData;
+
+  const users = Object.keys(workoutChartData);
 
   return (
     <>
@@ -59,7 +61,7 @@ export const OverviewChart = ({
               <VictoryBar
                 barWidth={3}
                 key={index}
-                data={data[userName]?.map((el) => ({
+                data={workoutChartData[userName]?.map((el) => ({
                   x: el.dayNumber,
                   y: el.scoreDay,
                 }))}

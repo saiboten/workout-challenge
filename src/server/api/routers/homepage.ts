@@ -30,29 +30,6 @@ const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
   return returnList;
 };
 
-function getTotalScores(
-  allWorkouts: (Workout & {
-    WorkoutType: WorkoutType | null;
-    User: User | null;
-  })[]
-) {
-  const totalScoresMap = allWorkouts.reduce((sum: UserWorkoutMap, workout) => {
-    sum[workout.User?.nickname ?? workout.User?.name ?? ""] =
-      (sum[workout.User?.nickname ?? workout.User?.name ?? ""] ?? 0) +
-      workout.points;
-    return sum;
-  }, {});
-
-  const totalScores = Object.keys(totalScoresMap)
-    .map((key) => ({
-      name: key,
-      totalScore: totalScoresMap[key] ?? 0,
-    }))
-    .sort((k, p) => (p.totalScore > k.totalScore ? 1 : -1));
-
-  return totalScores;
-}
-
 export const homepageRouter = createTRPCRouter({
   homedata: protectedProcedure.query(async ({ ctx }) => {
     const monthStart = startOfMonth(new Date());
@@ -137,7 +114,6 @@ export const homepageRouter = createTRPCRouter({
       daysInMonth,
       today: new Date(),
       // user data
-      totalScores: getTotalScores(allWorkouts),
       workoutChartData,
       hasWorkedOutToday: !!allWorkouts
         .filter((el) => el.User?.id === ctx.session?.user?.id)

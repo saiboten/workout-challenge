@@ -6,9 +6,10 @@ import {
   AlertTitle,
   AlertDescription,
   Text,
+  Flex,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
-
+import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -24,8 +25,12 @@ import { AddWorkoutLinks } from "../../components/AddWorkoutLinks";
 import { ProgressLineChart } from "../../components/ProgressLineChart";
 import { Sum } from "../../components/Sum";
 import { api } from "~/utils/api";
+import { addMonths, format } from "date-fns";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 
 const Home: NextPage = ({}) => {
+  const [month, setMonth] = useState(0);
+
   const router = useRouter();
   const session = useSession();
 
@@ -72,6 +77,8 @@ const Home: NextPage = ({}) => {
     scoreThisTimeLastMonth,
   } = homedata;
 
+  const monthText = addMonths(new Date(), month);
+
   return (
     <>
       <Head>
@@ -101,7 +108,26 @@ const Home: NextPage = ({}) => {
 
         <Sum />
 
-        <TotalScore />
+        <Text fontSize={"1.5rem"}>{format(monthText, "MMMM yyyy")}</Text>
+        <Flex
+          justifyContent="flex-start"
+          maxWidth="320px"
+          marginTop="1rem"
+          marginBottom="1rem"
+        >
+          <Button type="button" onClick={() => setMonth(month - 1)}>
+            <ArrowBackIcon boxSize={6} /> Forrige måned
+          </Button>
+          <Button
+            marginLeft="1rem"
+            type="button"
+            onClick={() => setMonth(month + 1)}
+          >
+            Neste måned <ArrowForwardIcon boxSize={6} />
+          </Button>
+        </Flex>
+
+        <TotalScore month={month} />
 
         <Spacer />
         <Text>
@@ -111,7 +137,7 @@ const Home: NextPage = ({}) => {
         <Spacer />
         <WorkoutNewsFeed lastFive={lastFive} />
         <Spacer />
-        <OverviewChart data={workoutChartData} daysInMonth={daysInMonth} />
+        <OverviewChart month={month} />
         <Spacer />
         <ProgressLineChart
           data={workoutChartData}
