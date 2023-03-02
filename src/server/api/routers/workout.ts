@@ -98,27 +98,24 @@ export const workoutRouter = createTRPCRouter({
 
       return workout;
     }),
-  getWorkoutList: protectedProcedure.query(async ({ ctx }) => {
-    const monthStart = startOfMonth(new Date());
-    const monthEnd = endOfMonth(new Date());
-
-    const workouts = (
-      await ctx.prisma.workout.findMany({
-        where: {
-          date: {
-            gte: monthStart,
-            lte: monthEnd,
+  getWorkoutList: protectedProcedure
+    .input(z.number())
+    .query(async ({ input, ctx }) => {
+      const workouts = (
+        await ctx.prisma.workout.findMany({
+          skip: input * 10,
+          take: 10,
+          where: {
+            userId: ctx.session?.user?.id,
           },
-          userId: ctx.session?.user?.id,
-        },
-        include: {
-          WorkoutType: true,
-        },
-      })
-    ).sort((el1, el2) => (el1.date < el2.date ? 1 : -1));
+          include: {
+            WorkoutType: true,
+          },
+        })
+      ).sort((el1, el2) => (el1.date < el2.date ? 1 : -1));
 
-    return workouts;
-  }),
+      return workouts;
+    }),
   totalScoreChart: protectedProcedure
     .input(z.number())
     .query(async ({ input, ctx }) => {

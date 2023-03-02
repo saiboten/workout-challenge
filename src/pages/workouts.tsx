@@ -1,4 +1,4 @@
-import { Heading, Button, Flex } from "@chakra-ui/react";
+import { Heading, Button, Flex, Box } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
@@ -9,9 +9,13 @@ import { Spacer } from "../../components/lib/Spacer";
 import { Loader } from "../../components/lib/Loader";
 import { WorkoutView } from "../../components/WorkoutView";
 import { api } from "~/utils/api";
+import { useState } from "react";
+import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 
 const WorkOuts: NextPage = () => {
-  const { data: workouts, isLoading } = api.workout.getWorkoutList.useQuery();
+  const [index, setIndex] = useState(0);
+  const { data: workouts, isLoading } =
+    api.workout.getWorkoutList.useQuery(index);
   const session = useSession();
 
   if (isLoading) {
@@ -37,6 +41,25 @@ const WorkOuts: NextPage = () => {
         <Heading mb="5" size="lg">
           Treninger
         </Heading>
+
+        <Box>Side {index + 1}</Box>
+
+        <Flex
+          maxWidth="320px"
+          justifyContent="center"
+          gap="1rem"
+          margin="1rem auto"
+        >
+          <Button isDisabled={index <= 0} onClick={() => setIndex(index - 1)}>
+            <ArrowBackIcon />
+          </Button>
+          <Button
+            isDisabled={workouts.length === 0}
+            onClick={() => setIndex(index + 1)}
+          >
+            <ArrowForwardIcon />
+          </Button>
+        </Flex>
 
         <Flex textAlign="left" flexDirection="column" gap="2">
           {workouts.map((workout) => {
