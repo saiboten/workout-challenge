@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { WorkoutType } from "@prisma/client";
+import { Workout, WorkoutType } from "@prisma/client";
+import {
+  addDays,
+  addMonths,
+  endOfMonth,
+  isSameDay,
+  startOfMonth,
+  subMonths,
+} from "date-fns";
+
+interface UserWorkoutMap {
+  [id: string]: number;
+}
 
 export function calculateScore(
   workout: z.infer<typeof input>,
@@ -22,6 +34,18 @@ export function calculateScore(
 
   return sum;
 }
+
+const getDaysInMonth = (monthStart: Date, monthEnd: Date): number[] => {
+  const returnList = [];
+  let currentDate = monthStart;
+
+  while (currentDate < monthEnd) {
+    returnList.push(currentDate.getDate());
+    currentDate = addDays(currentDate, 1);
+  }
+
+  return returnList;
+};
 
 const input = z
   .object({
@@ -94,5 +118,66 @@ export const workoutRouter = createTRPCRouter({
       });
 
       return workout;
+    }),
+  getWorkoutList: protectedProcedure.query(async ({ ctx }) => {
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
+
+    const workouts = (
+      await ctx.prisma.workout.findMany({
+        where: {
+          date: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+          userId: ctx.session?.user?.id,
+        },
+        include: {
+          WorkoutType: true,
+        },
+      })
+    ).sort((el1, el2) => (el1.date < el2.date ? 1 : -1));
+
+    return workouts;
+  }),
+  totalScoreChart: protectedProcedure
+    .input(z.number())
+    .query(async ({ input, ctx }) => {
+      const monthStart = startOfMonth(addMonths(new Date(), input));
+      const monthEnd = endOfMonth(addMonths(new Date(), input));
+
+      console.log(monthStart, monthEnd);
+
+      const allWorkouts = await ctx.prisma.workout.findMany({
+        where: {
+          date: {
+            gte: monthStart,
+            lte: monthEnd,
+          },
+        },
+        include: {
+          User: true,
+          WorkoutType: true,
+        },
+      });
+
+      const totalScoresMap = allWorkouts.reduce(
+        (sum: UserWorkoutMap, workout) => {
+          sum[workout.User?.nickname ?? workout.User?.name ?? ""] =
+            (sum[workout.User?.nickname ?? workout.User?.name ?? ""] ?? 0) +
+            workout.points;
+          return sum;
+        },
+        {}
+      );
+
+      const totalScores = Object.keys(totalScoresMap)
+        .map((key) => ({
+          name: key,
+          totalScore: totalScoresMap[key] ?? 0,
+        }))
+        .sort((k, p) => (p.totalScore > k.totalScore ? 1 : -1));
+
+      return totalScores;
     }),
 });
