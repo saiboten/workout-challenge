@@ -23,9 +23,13 @@ export const OverviewChart = ({ month }: { month: number }) => {
     throw new Error("No data");
   }
 
-  const { daysInMonth, workoutChartData } = chartData;
+  const { daysInMonth, workoutChartData, isEmpty } = chartData;
 
   const users = Object.keys(workoutChartData);
+
+  if (isEmpty) {
+    return null;
+  }
 
   return (
     <>

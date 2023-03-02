@@ -7,15 +7,20 @@ import { Spacer } from "./lib/Spacer";
 const color = ["chocolate", "darkcyan"];
 
 export const TotalScore = ({ month }: { month: number }) => {
-  const { data: totalScores, isLoading } =
-    api.workout.totalScoreChart.useQuery(month);
+  const { data, isLoading } = api.workout.totalScoreChart.useQuery(month);
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (!totalScores) {
+  if (!data) {
     throw new Error("No data");
+  }
+
+  const { totalScores, isEmpty } = data;
+
+  if (isEmpty) {
+    return null;
   }
 
   return (

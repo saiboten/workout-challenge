@@ -22,9 +22,13 @@ export const ProgressLineChart = ({ month }: { month: number }) => {
     throw new Error("No data");
   }
 
-  const { daysInMonth, workoutChartData, today } = chartData;
+  const { daysInMonth, workoutChartData, today, isEmpty } = chartData;
 
   const users = Object.keys(workoutChartData);
+
+  if (isEmpty) {
+    return null;
+  }
 
   return (
     <>

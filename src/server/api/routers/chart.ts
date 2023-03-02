@@ -92,6 +92,11 @@ export const chartRouter = createTRPCRouter({
         };
       }, {});
 
-      return { workoutChartData, daysInMonth, today };
+      return {
+        workoutChartData,
+        daysInMonth,
+        today,
+        isEmpty: allWorkouts.length === 0,
+      };
     }),
 });

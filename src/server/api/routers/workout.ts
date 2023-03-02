@@ -157,6 +157,6 @@ export const workoutRouter = createTRPCRouter({
         }))
         .sort((k, p) => (p.totalScore > k.totalScore ? 1 : -1));
 
-      return totalScores;
+      return { totalScores, isEmpty: allWorkouts.length === 0 };
     }),
 });
