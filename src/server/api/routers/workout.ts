@@ -146,8 +146,6 @@ export const workoutRouter = createTRPCRouter({
       const monthStart = startOfMonth(addMonths(new Date(), input));
       const monthEnd = endOfMonth(addMonths(new Date(), input));
 
-      console.log(monthStart, monthEnd);
-
       const allWorkouts = await ctx.prisma.workout.findMany({
         where: {
           date: {
