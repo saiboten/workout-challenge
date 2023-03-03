@@ -1,4 +1,4 @@
-import { Heading } from "@chakra-ui/react";
+import { Box, Heading } from "@chakra-ui/react";
 import { VictoryAxis, VictoryBar, VictoryChart } from "victory";
 import { api } from "~/utils/api";
 import { Loader } from "./lib/Loader";
@@ -20,7 +20,11 @@ export const TotalScore = ({ month }: { month: number }) => {
   const { totalScores, isEmpty } = data;
 
   if (isEmpty) {
-    return null;
+    return (
+      <Box bgColor="khaki" padding="1rem">
+        Det er ingen som har samlet poeng denne måneden! Hva skjer?!
+      </Box>
+    );
   }
 
   return (

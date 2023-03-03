@@ -1,4 +1,4 @@
-import { Heading, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 import { api } from "~/utils/api";
 import { Loader } from "./lib/Loader";
 
@@ -10,11 +10,8 @@ export const Sum = () => {
   }
 
   return (
-    <Text mb="5">
-      <Heading size="md" mb="2">
-        Sum totalt alle måneder
-      </Heading>
-      <Text>{data ?? 0} poeng</Text>
+    <Text>
+      Sum totalt alle måneder: <strong>{data ?? 0} poeng</strong>
     </Text>
   );
 };
