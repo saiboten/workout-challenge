@@ -1,3 +1,3 @@
 # Workout challenge
 
-Work out for points. Compete!
+Work out for points. Compete! Very fun.
