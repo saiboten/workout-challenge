@@ -27,6 +27,7 @@ import { Sum } from "../../components/Sum";
 import { api } from "~/utils/api";
 import { addMonths } from "date-fns";
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import { Award } from "components/Award";
 
 const options1 = {
   year: "numeric",
@@ -109,6 +110,8 @@ const Home: NextPage = ({}) => {
             hesten!
           </Box>
         ) : null}
+
+        <Award />
 
         <Sum />
 

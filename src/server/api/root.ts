@@ -3,6 +3,7 @@ import { settingsRouter } from "~/server/api/routers/settings";
 import { workoutRouter } from "~/server/api/routers/workout";
 import { homepageRouter } from "~/server/api/routers/homepage";
 import { chartRouter } from "./routers/chart";
+import { awardRouter } from "./routers/award";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   workout: workoutRouter,
   homepage: homepageRouter,
   chart: chartRouter,
+  award: awardRouter,
 });
 
 // export type definition of API

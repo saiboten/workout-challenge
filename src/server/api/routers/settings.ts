@@ -9,20 +9,22 @@ const input = z
   .nullish();
 
 export const settingsRouter = createTRPCRouter({
-  updateUser: protectedProcedure.input(input).mutation(({ input, ctx }) => {
-    const res = ctx.prisma?.user.update({
-      where: {
-        id: ctx.session?.user?.id,
-      },
-      data: {
-        nickname: input?.nickName,
-      },
-    });
+  updateUser: protectedProcedure
+    .input(input)
+    .mutation(async ({ input, ctx }) => {
+      const res = await ctx.prisma?.user.update({
+        where: {
+          id: ctx.session?.user?.id,
+        },
+        data: {
+          nickname: input?.nickName,
+        },
+      });
 
-    return {
-      success: res,
-    };
-  }),
+      return {
+        success: res,
+      };
+    }),
   getUser: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
       where: {

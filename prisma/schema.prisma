@@ -77,6 +77,11 @@ model User {
     workouts      Workout[]
 }
 
+model Award {
+    id   String @id @default(cuid())
+    goal Int
+}
+
 model VerificationToken {
     identifier String
     token      String   @unique
